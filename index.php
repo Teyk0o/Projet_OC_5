@@ -1,6 +1,10 @@
 <?php
 require 'assets/php/Articles.php';
 
+session_start();
+$nonce = bin2hex(random_bytes(16));
+$_SESSION['nonce'] = $nonce;
+
 $articlesInstance = new Articles();
 $randomArticle = $articlesInstance->getRandomArticle();
 $allArticles = $articlesInstance->getRecentArticles(6);
@@ -159,9 +163,9 @@ $articlesCount = 0;
           <div class="col-lg-4">
             <div class="post-entry-1 lg">
               <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
-              <div class="post-meta"><span class="mx-1">&bullet;</span> <span><?= $formattedRandomArticleDate ?></span></div>
-              <h2><a href="single-post.html"><?= $randomArticle['title'] ?></a></h2>
-              <p class="mb-4 d-block"><?= $trimmedRandomArticleContent ?></p>
+              <div class="post-meta"><span class="mx-1">&bullet;</span> <span><?= htmlspecialchars($formattedRandomArticleDate, ENT_QUOTES, 'UTF-8') ?></span></div>
+              <h2><a href="single-post.html"><?= htmlspecialchars($randomArticle['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+              <p class="mb-4 d-block"><?= htmlspecialchars($trimmedRandomArticleContent, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
           </div>
 
@@ -174,7 +178,7 @@ $articlesCount = 0;
                     $date = new DateTime($article['last_modified']);
                     $formattedDate = $date->format('d M Y');
 
-                    if ($articlesCount == 0) {
+                    if ($articlesCount === 0) {
                       echo '<div class="col-lg-4 border-start custom-border">'; // Ouvrez une nouvelle div.
                     }
 
@@ -186,8 +190,8 @@ $articlesCount = 0;
 
                     echo '<div class="post-entry-1">
                       <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
-                      <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.$formattedDate.'</span></div>
-                      <h2><a href="single-post.html">'.$article['title'].'</a></h2>
+                      <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                      <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
               
                     $articlesCount++;
@@ -260,6 +264,7 @@ $articlesCount = 0;
                   <label for="message">Message</label>
                   <textarea class="form-control" name="message" rows="10" required></textarea>
                 </div>
+                <input type="hidden" name="nonce" value="<?php echo $nonce; ?>">
               </div>
               <div class="text-center"><button type="submit" name="submit_contact_form">Envoyer le message</button></div>
             </form>
@@ -308,8 +313,8 @@ $articlesCount = 0;
                       <a href="single-post.html" class="d-flex align-items-center">
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
-                          <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>' . $formattedfooterArticleDate . '</span></div>
-                          <span>' . $articleFooter['title'] . '</span>
+                          <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

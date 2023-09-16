@@ -5,24 +5,18 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
+if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = $last_name = $email = $subject = $message = "";
 
-    if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["email"]) && isset($_POST["subject"]) && isset($_POST["message"])) {
-
-        $first_name = $_POST["first_name"];
-        $last_name = $_POST["last_name"];
-        $email = $_POST["email"];
-        $subject = $_POST["subject"];
-        $message = $_POST["message"];
-
+    if (isset($_POST['nonce']) && $_POST['nonce'] === $_SESSION['nonce'] && isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["email"]) && isset($_POST["subject"]) && isset($_POST["message"])) {
+        $first_name = cleanVariable($_POST["first_name"]);
+        $last_name = cleanVariable($_POST["last_name"]);
+        $email = cleanVariable($_POST["email"]);
+        $subject = cleanVariable($_POST["subject"]);
+        $message = cleanVariable($_POST["message"]);
     } else {
-
         echo json_encode(['success' => false, 'message' => "Une erreur est survenue, veuillez réessayer."]);
     }
-
-
 
     $mail = new PHPMailer(true);
 
@@ -53,4 +47,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo json_encode(['success' => false, 'message' => "Une erreur est survenue, veuillez réessayer."]);
     } // end try catch
 }
-?>
+
+function cleanVariable($input) {
+    $input = htmlspecialchars($input, ENT_IGNORE, 'utf-8');
+    $input = strip_tags($input);
+    $input = stripslashes($input);
+    return $input;
+}

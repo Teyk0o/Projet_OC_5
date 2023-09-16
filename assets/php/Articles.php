@@ -7,25 +7,35 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__.'/../../');
 $dotenv->load();
 
-class Articles 
+class Articles
 {
 
-    private $database; // Variable de connexion à la base de données
+    /**
+     * Variable de connexion à la base de données.
+     *
+     * @var PDO $database
+     */
+    private $database;
 
     /**
      * Constructeur de la classe Articles
      *
+     * @param string $host
+     * @param string $dbname
+     * @param string $user
+     * @param string $pass
+     *
      * @return void
      */
-    public function __construct() 
+    public function __construct($host, $dbname, $user, $pass) 
     {
         try {
-            $this->database = new PDO('mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+            $this->database = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $user, $pass);
             $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            var_dump('Erreur de connexion: ' . $e->getMessage());
+            error_log('Erreur de connexion: ' . $e->getMessage());
         }
-    } // end construct
+    } // end __construct()
 
     /**
      * Fonction qui permet de récupérer le dernier article dans la base de données
@@ -58,7 +68,7 @@ class Articles
      *
      * @return array
      */
-    public function getRecentArticles($limit) 
+    public function getRecentArticles($limit)
     {
         $query = "SELECT * FROM posts ORDER BY last_modified DESC LIMIT :limit";
         $stmt = $this->database->prepare($query);
