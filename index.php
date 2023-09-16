@@ -193,7 +193,11 @@ $articlesCount = 0;
                       <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
                       <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
-              
+              echo '<div class="post-entry-1">
+                  <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                  <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+              </div>';
                     $articlesCount++;
               
                     // Arrêtez la boucle après avoir affiché six articles.
