@@ -35,6 +35,7 @@ class Articles
         } catch (PDOException $e) {
             error_log('Erreur de connexion: ' . $e->getMessage());
         }
+<<<<<<< HEAD
     public function __construct($host, $dbname, $user, $pass) 
     {
         try {
@@ -54,6 +55,9 @@ class Articles
     {
         $query = 'SELECT * FROM posts ORDER BY last_modified DESC LIMIT 1';
         $stmt = $this->database->prepare($query);
+=======
+    } // end __construct()
+>>>>>>> feature/LandingPage
 
     /**
      * Fonction qui permet de récupérer le dernier article dans la base de données
@@ -106,4 +110,27 @@ class Articles
         $result = $this->database->query($query);
         return $result->fetch();
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * Fonction qui permet de récupérer le top 5 des articles les plus commentés dans la base de données
+     *
+     * @return array
+     */
+    public function getMostCommentedArticles($limit = 5) {
+        $query = 'SELECT posts.*, COUNT(comments.id) AS comment_count
+                 FROM posts
+                 LEFT JOIN comments ON posts.id = comments.post_id
+                 GROUP BY posts.id
+                 ORDER BY comment_count DESC
+                 LIMIT :limit';
+
+        $stmt = $this->database->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+>>>>>>> feature/LandingPage
 } // end class Articles
