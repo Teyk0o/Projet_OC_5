@@ -88,4 +88,24 @@ class Articles
         $result = $this->database->query($query);
         return $result->fetch();
     }
+
+    /**
+     * Fonction qui permet de récupérer le top 5 des articles les plus commentés dans la base de données
+     *
+     * @return array
+     */
+    public function getMostCommentedArticles($limit = 5) {
+        $query = 'SELECT posts.*, COUNT(comments.id) AS comment_count
+                 FROM posts
+                 LEFT JOIN comments ON posts.id = comments.post_id
+                 GROUP BY posts.id
+                 ORDER BY comment_count DESC
+                 LIMIT :limit';
+
+        $stmt = $this->database->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 } // end class Articles

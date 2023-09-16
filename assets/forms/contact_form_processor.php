@@ -1,9 +1,14 @@
 <?php
 require '../../vendor/autoload.php';
 
+use Dotenv\Dotenv;
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+
+$dotenv = Dotenv::createImmutable(__DIR__.'/../../');
+$dotenv->load();
 
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = $last_name = $email = $subject = $message = "";
@@ -24,16 +29,16 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         // Server settings
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
+        $mail->Host       = $_ENV['SMTP_HOST'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'theo.openclassrooms@gmail.com';
-        $mail->Password   = 'fkovrfqvsuovirfy';
+        $mail->Username   = $_ENV['SMTP_USERNAME'];
+        $mail->Password   = $_ENV['SMTP_PASSWORD'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Port       = $_ENV['SMTP_PORT'];
 
         // Recipients
         $mail->setFrom($email, $first_name.' '.$last_name);
-        $mail->addAddress('theo.openclassrooms@gmail.com', 'Théo Vilain');
+        $mail->addAddress($_ENV['SMTP_USERNAME'], 'Théo Vilain');
 
         // Content
         $mail->isHTML(true);
@@ -48,11 +53,11 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
     } // end try catch
 }
 
-    /**
-     * Fonction qui permet de nettoyer les variables
-     *
-     * @return variable
-     */
+/**
+* Fonction qui permet de nettoyer les variables
+*
+* @return variable
+*/
 function cleanVariable($input) 
 {
     $input = htmlspecialchars($input, ENT_QUOTES, 'utf-8');

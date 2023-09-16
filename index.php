@@ -1,11 +1,17 @@
 <?php
+require 'vendor/autoload.php';
 require 'assets/php/Articles.php';
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
 session_start();
 $nonce = bin2hex(random_bytes(16));
 $_SESSION['nonce'] = $nonce;
 
-$articlesInstance = new Articles();
+$articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
 $randomArticle = $articlesInstance->getRandomArticle();
 $allArticles = $articlesInstance->getRecentArticles(6);
 
@@ -68,7 +74,8 @@ $articlesCount = 0;
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a href="index.html">Les articles</a></li>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/articles">Les articles</a></li>
           <li><a href="about.html">À propos</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
@@ -292,15 +299,15 @@ $articlesCount = 0;
           <div class="col-6 col-lg-2">
             <h3 class="footer-heading">Navigation</h3>
             <ul class="footer-links list-unstyled">
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Accueil</a></li>
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Les articles</a></li>
+              <li><a href="/"><i class="bi bi-chevron-right"></i> Accueil</a></li>
+              <li><a href="/articles"><i class="bi bi-chevron-right"></i> Les articles</a></li>
               <li><a href="category.html"><i class="bi bi-chevron-right"></i> Connexion / Inscription</a></li>
               <li><a href="single-post.html"><i class="bi bi-chevron-right"></i> À propos</a></li>
               <li><a href="about.html"><i class="bi bi-chevron-right"></i> Espace administration</a></li>
             </ul>
           </div>
           <div class="col-lg-4">
-            <h3 class="footer-heading">Recent Posts</h3>
+            <h3 class="footer-heading">Articles récents</h3>
 
             <ul class="footer-links footer-blog-entry list-unstyled">
 
