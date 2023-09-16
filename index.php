@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-require 'assets/php/Articles.php';
-
-=======
 require 'vendor/autoload.php';
 require 'assets/php/Articles.php';
 
@@ -11,16 +7,11 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
->>>>>>> feature/LandingPage
 session_start();
 $nonce = bin2hex(random_bytes(16));
 $_SESSION['nonce'] = $nonce;
 
-<<<<<<< HEAD
-$articlesInstance = new Articles();
-=======
 $articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
->>>>>>> feature/LandingPage
 $randomArticle = $articlesInstance->getRandomArticle();
 $allArticles = $articlesInstance->getRecentArticles(6);
 
@@ -75,7 +66,7 @@ $articlesCount = 0;
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="/" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets/img/logo.png" alt=""> -->
         <h1>Théo Vilain</h1>
@@ -83,12 +74,8 @@ $articlesCount = 0;
 
       <nav id="navbar" class="navbar">
         <ul>
-<<<<<<< HEAD
-          <li><a href="index.html">Les articles</a></li>
-=======
           <li><a href="/">Accueil</a></li>
           <li><a href="/articles">Les articles</a></li>
->>>>>>> feature/LandingPage
           <li><a href="about.html">À propos</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
@@ -213,15 +200,7 @@ $articlesCount = 0;
                       <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
                       <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
-<<<<<<< HEAD
-              echo '<div class="post-entry-1">
-                  <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
-                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                  <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
-              </div>';
-=======
               
->>>>>>> feature/LandingPage
                     $articlesCount++;
               
                     // Arrêtez la boucle après avoir affiché six articles.
@@ -320,44 +299,20 @@ $articlesCount = 0;
           <div class="col-6 col-lg-2">
             <h3 class="footer-heading">Navigation</h3>
             <ul class="footer-links list-unstyled">
-<<<<<<< HEAD
               <li><a href="index.html"><i class="bi bi-chevron-right"></i> Accueil</a></li>
               <li><a href="index.html"><i class="bi bi-chevron-right"></i> Les articles</a></li>
-=======
-              <li><a href="/"><i class="bi bi-chevron-right"></i> Accueil</a></li>
-              <li><a href="/articles"><i class="bi bi-chevron-right"></i> Les articles</a></li>
->>>>>>> feature/LandingPage
               <li><a href="category.html"><i class="bi bi-chevron-right"></i> Connexion / Inscription</a></li>
               <li><a href="single-post.html"><i class="bi bi-chevron-right"></i> À propos</a></li>
               <li><a href="about.html"><i class="bi bi-chevron-right"></i> Espace administration</a></li>
             </ul>
           </div>
           <div class="col-lg-4">
-<<<<<<< HEAD
-            <h3 class="footer-heading">Recent Posts</h3>
-=======
             <h3 class="footer-heading">Articles récents</h3>
->>>>>>> feature/LandingPage
 
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-<<<<<<< HEAD
-                                <?php 
-                                  foreach ($footerArticles as $articleFooter) {
-                                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
-                                    $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
-                  
-                                    echo '<li>
-                                      <a href="single-post.html" class="d-flex align-items-center">
-                                        <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
-                                        <div>
-                                          <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
-                                        </div>
-=======
                   foreach ($footerArticles as $articleFooter) {
->>>>>>> feature/LandingPage
                     $footerArticleDate = new DateTime($articleFooter['last_modified']);
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
