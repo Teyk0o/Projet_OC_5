@@ -1,0 +1,14 @@
+{
+    "name": "theov/p5oc",
+    "autoload": {
+        "psr-4": {
+            "Theov\\P5oc\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Theo Vilain"
+        }
+    ],
+    "require": {}
+}
