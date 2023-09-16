@@ -1,4 +1,3 @@
-
 <?php
 require '../../vendor/autoload.php';
 
@@ -6,17 +5,29 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = $_POST["first_name"];
-    $last_name = $_POST["last_name"];
-    $email = $_POST["email"];
-    $subject = $_POST["subject"];
-    $message = $_POST["message"];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $first_name = $last_name = $email = $subject = $message = "";
+
+    if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["email"]) && isset($_POST["subject"]) && isset($_POST["message"])) {
+
+        $first_name = $_POST["first_name"];
+        $last_name = $_POST["last_name"];
+        $email = $_POST["email"];
+        $subject = $_POST["subject"];
+        $message = $_POST["message"];
+
+    } else {
+
+        echo json_encode(['success' => false, 'message' => "Une erreur est survenue, veuillez réessayer."]);
+    }
+
+
 
     $mail = new PHPMailer(true);
 
     try {
-        //Server settings
+        // Server settings
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
@@ -26,20 +37,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        //Recipients
-        $mail->setFrom($email, $first_name . ' ' . $last_name);
+        // Recipients
+        $mail->setFrom($email, $first_name.' '.$last_name);
         $mail->addAddress('theo.openclassrooms@gmail.com', 'Théo Vilain');
 
-        //Content
+        // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $message;
 
         $mail->send();
         header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' =>  "Le mail a bien été envoyé."]);
+        echo json_encode(['success' => true, 'message' => "Le mail a bien été envoyé."]);
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' =>  "Une erreur est survenue, veuillez réessayer."]);
-    }
+        echo json_encode(['success' => false, 'message' => "Une erreur est survenue, veuillez réessayer."]);
+    } // end try catch
 }
 ?>

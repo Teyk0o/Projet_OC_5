@@ -1,51 +1,81 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv = Dotenv::createImmutable(__DIR__.'/../../');
 $dotenv->load();
 
-class Articles {
-    private $db;
+class Articles 
+{
 
-    public function __construct() {
+    private $database; // Variable de connexion à la base de données
+
+    /**
+     * Constructeur de la classe Articles
+     *
+     * @return void
+     */
+    public function __construct() 
+    {
         try {
-            $this->db = new PDO('mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $dbName = $_ENV['DB_NAME'], $dbUser = $_ENV['DB_USER'], $dbPass = $_ENV['DB_PASS']);
-            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->database = new PDO('mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+            $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            die('Erreur de connexion: ' . $e->getMessage());
+            var_dump('Erreur de connexion: ' . $e->getMessage());
         }
-    }
+    } // end construct
 
-    public function getLastArticle() {
+    /**
+     * Fonction qui permet de récupérer le dernier article dans la base de données
+     *
+     * @return array
+     */
+    public function getLastArticle() 
+    {
         $query = 'SELECT * FROM posts ORDER BY last_modified DESC LIMIT 1';
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getAllArticles() {
+    /**
+     * Fonction qui permet de récupérer tous les articles dans la base de données
+     *
+     * @return array
+     */
+    public function getAllArticles() 
+    {
         $query = 'SELECT * FROM posts ORDER BY last_modified DESC';
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getRecentArticles($limit) {
+    /**
+     * Fonction qui permet de récupérer un nombre spécifique d'article dans la base de données
+     *
+     * @return array
+     */
+    public function getRecentArticles($limit) 
+    {
         $query = "SELECT * FROM posts ORDER BY last_modified DESC LIMIT :limit";
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    public function getRandomArticle() {
+    /**
+     * Fonction qui permet de récupérer un article aléatoire dans la base de données
+     *
+     * @return array
+     */
+    public function getRandomArticle() 
+    {
         $query = 'SELECT * FROM posts ORDER BY RAND() LIMIT 1';
-        $result = $this->db->query($query);
+        $result = $this->database->query($query);
         return $result->fetch();
     }
-    
-}
-?>
+} // end class Articles

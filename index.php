@@ -11,7 +11,7 @@ $randomArticleDate = new DateTime($randomArticle['last_modified']);
 $formattedRandomArticleDate = $randomArticleDate->format('d M Y');
 $trimmedRandomArticleContent = substr($randomArticle['content'], 0, 360);
 if (strlen($randomArticle['content']) > 250) {
-  $trimmedRandomArticleContent .= "...";
+    $trimmedRandomArticleContent .= "...";
 }
 
 $articlesCount = 0;
@@ -171,37 +171,34 @@ $articlesCount = 0;
 
               <?php
                 foreach ($allArticles as $article) {
+                    $date = new DateTime($article['last_modified']);
+                    $formattedDate = $date->format('d M Y');
 
-                  $date = new DateTime($article['last_modified']);
-                  $formattedDate = $date->format('d M Y');
+                    if ($articlesCount == 0) {
+                      echo '<div class="col-lg-4 border-start custom-border">'; // Ouvrez une nouvelle div.
+                    }
 
-                  if ($articlesCount == 0) {
+                    // Commencez une nouvelle div après avoir affiché trois articles dans la première div.
+                    if ($articlesCount === 3) {
+                        echo '</div>'; // Fermez la première div.
+                        echo '<div class="col-lg-4 border-start custom-border">'; // Ouvrez une nouvelle div.
+                    }
 
-                    echo '<div class="col-lg-4 border-start custom-border">'; // Ouvrez une nouvelle div
-
-                  }
-
-                  // Commencez une nouvelle div après avoir affiché trois articles dans la première div
-                  if ($articlesCount == 3) {
-                      echo '</div>'; // Fermez la première div
-                      echo '<div class="col-lg-4 border-start custom-border">'; // Ouvrez une nouvelle div
-                  }
+                    echo '<div class="post-entry-1">
+                      <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+                      <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.$formattedDate.'</span></div>
+                      <h2><a href="single-post.html">'.$article['title'].'</a></h2>
+                    </div>';
               
-                  echo '<div class="post-entry-1">
-                    <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
-                    <div class="post-meta"><span class="mx-1">&bullet;</span> <span>' . $formattedDate . '</span></div>
-                    <h2><a href="single-post.html">' . $article['title'] . '</a></h2>
-                  </div>';
+                    $articlesCount++;
               
-                  $articlesCount++;
+                    // Arrêtez la boucle après avoir affiché six articles.
+                    if ($articlesCount === 6) {
+                        break;
+                    }
+                } // end foreach
               
-                  // Arrêtez la boucle après avoir affiché six articles
-                  if ($articlesCount == 6) {
-                      break;
-                  }
-                }
-              
-                // Fermez la dernière div si nécessaire
+                // Fermez la dernière div si nécessaire.
                 if ($articlesCount > 0) {
                     echo '</div>';
                 }
@@ -303,9 +300,7 @@ $articlesCount = 0;
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                
-                  foreach($footerArticles as $articleFooter) {
-
+                  foreach ($footerArticles as $articleFooter) {
                     $footerArticleDate = new DateTime($articleFooter['last_modified']);
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
@@ -318,10 +313,7 @@ $articlesCount = 0;
                         </div>
                       </a>
                     </li>';
-
-
                   }
-                
                 ?>
 
             </ul>
