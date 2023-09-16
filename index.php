@@ -305,7 +305,18 @@ $articlesCount = 0;
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                  foreach ($footerArticles as $articleFooter) {
+                                <?php 
+                                  foreach ($footerArticles as $articleFooter) {
+                                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
+                                    $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
+                  
+                                    echo '<li>
+                                      <a href="single-post.html" class="d-flex align-items-center">
+                                        <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
+                                        <div>
+                                          <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
+                                        </div>
                     $footerArticleDate = new DateTime($articleFooter['last_modified']);
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
