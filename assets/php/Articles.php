@@ -35,7 +35,25 @@ class Articles
         } catch (PDOException $e) {
             error_log('Erreur de connexion: ' . $e->getMessage());
         }
-    } // end __construct()
+    public function __construct($host, $dbname, $user, $pass) 
+    {
+        try {
+            $this->database = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $user, $pass);
+            $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            error_log('Erreur de connexion: ' . $e->getMessage());
+        }
+    } // end of __construct()
+
+    /**
+     * Fonction qui permet de récupérer le dernier article dans la base de données
+     *
+     * @return array
+     */
+    public function getLastArticle() 
+    {
+        $query = 'SELECT * FROM posts ORDER BY last_modified DESC LIMIT 1';
+        $stmt = $this->database->prepare($query);
 
     /**
      * Fonction qui permet de récupérer le dernier article dans la base de données
