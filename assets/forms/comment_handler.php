@@ -21,9 +21,9 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
     if (isset($_SESSION['id'])) {
         $comment = $userId = "";
 
-        if (isset($_POST['nonce']) && $_POST['nonce'] === $_SESSION['nonce'] && isset($_POST["comment-message"]) && isset($_POST["post-id"])) {
-            $comment = cleanVariable($_POST["comment-message"]);
-            $postId = cleanVariable($_POST["post-id"]);
+        if (isset($_POST["comment-message"]) && isset($_POST["post-id"])) {
+            $comment = secureInput($_POST["comment-message"]);
+            $postId = secureInput($_POST["post-id"]);
         } else {
             echo json_encode(['success' => false, 'message' => "Une erreur est survenue, veuillez réessayer."]);
         }
@@ -50,4 +50,9 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
 
 };
 
-?>
+function secureInput($data) {
+    $data = trim($data);               // Supprime les espaces inutiles
+    $data = strip_tags($data);         // Supprime les balises HTML et PHP
+    $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8'); // Convertit les caractères spéciaux en entités HTML
+    return $data;
+}

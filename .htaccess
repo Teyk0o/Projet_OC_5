@@ -1,5 +1,7 @@
 RewriteEngine On
-RewriteBase /P5OC/
 
 RewriteRule ^articles$ pages/articles.php [L]
+RewriteRule ^auth$ pages/auth.php [L]
+RewriteRule ^admin$ pages/admin.php [L]
+RewriteRule ^a-propos$ pages/a-propos.php [L]
 RewriteRule ^article/([a-zA-Z0-9_-]+)$ pages/article.php?slug=$1 [L]
