@@ -2,3 +2,4 @@ RewriteEngine On
 RewriteBase /P5OC/
 
 RewriteRule ^articles$ pages/articles.php [L]
+RewriteRule ^article/([a-zA-Z0-9_-]+)$ pages/article.php?slug=$1 [L]

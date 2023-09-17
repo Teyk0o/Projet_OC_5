@@ -1,21 +1,15 @@
 <?php
 require '../../vendor/autoload.php';
 
-<<<<<<< HEAD
-=======
 use Dotenv\Dotenv;
 
->>>>>>> feature/LandingPage
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-<<<<<<< HEAD
-=======
 $dotenv = Dotenv::createImmutable(__DIR__.'/../../');
 $dotenv->load();
 
->>>>>>> feature/LandingPage
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = $last_name = $email = $subject = $message = "";
 
@@ -35,18 +29,6 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         // Server settings
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         $mail->isSMTP();
-<<<<<<< HEAD
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'theo.openclassrooms@gmail.com';
-        $mail->Password   = 'fkovrfqvsuovirfy';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-
-        // Recipients
-        $mail->setFrom($email, $first_name.' '.$last_name);
-        $mail->addAddress('theo.openclassrooms@gmail.com', 'Théo Vilain');
-=======
         $mail->Host       = $_ENV['SMTP_HOST'];
         $mail->SMTPAuth   = true;
         $mail->Username   = $_ENV['SMTP_USERNAME'];
@@ -57,7 +39,6 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
         // Recipients
         $mail->setFrom($email, $first_name.' '.$last_name);
         $mail->addAddress($_ENV['SMTP_USERNAME'], 'Théo Vilain');
->>>>>>> feature/LandingPage
 
         // Content
         $mail->isHTML(true);
@@ -72,39 +53,14 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
     } // end try catch
 }
 
-<<<<<<< HEAD
-    /**
-     * Fonction qui permet de nettoyer les variables
-     *
-     * @return variable
-     */
-} // end try catch
-}
-
-    /**
-     * Fonction qui permet de nettoyer les variables
-     *
-     * @return variable
-     */
-
-=======
 /**
 * Fonction qui permet de nettoyer les variables
 *
 * @return variable
 */
->>>>>>> feature/LandingPage
 function cleanVariable($input) 
 {
     $input = htmlspecialchars($input, ENT_QUOTES, 'utf-8');
     $input = strip_tags($input);
     return $input;
-<<<<<<< HEAD
-}
-{
-    $input = htmlspecialchars($input, ENT_QUOTES, 'utf-8');
-    $input = strip_tags($input);
-    return $input;
-=======
->>>>>>> feature/LandingPage
 }

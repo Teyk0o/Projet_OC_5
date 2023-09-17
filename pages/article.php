@@ -10,9 +10,17 @@ $dotenv->load();
 $articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
 $mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
 $lastArticles = $articlesInstance->getRecentArticles(5);
-$allArticles = $articlesInstance->getAllArticles();
 
 $footerArticles = $articlesInstance->getRecentArticles(4);
+
+$article = $articlesInstance->getArticleBySlug(htmlspecialchars($_GET['slug'], ENT_QUOTES, 'UTF-8'));
+$articleDate = new DateTime($article['last_modified']);
+$formattedArticleDate = $articleDate->format('d M Y');
+
+$comments = $articlesInstance->getCommentsByArticleId($article['id']);
+$commentsCount = count($comments);
+
+$articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
 
 ?>
 <!DOCTYPE html>
@@ -22,13 +30,13 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Les articles - Théo Vilain</title>
+  <title>ZenBlog Bootstrap Template - Single Post</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="../assets/img/favicon.png" rel="icon">
+  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,15 +44,15 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
 
   <!-- Template Main CSS Files -->
-  <link href="assets/css/variables.css" rel="stylesheet">
-  <link href="assets/css/main.css" rel="stylesheet">
+  <link href="../assets/css/variables.css" rel="stylesheet">
+  <link href="../assets/css/main.css" rel="stylesheet">
 
 </head>
 
@@ -56,7 +64,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
       <a href="/" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <!-- <img src="../assets/img/logo.png" alt=""> -->
         <h1>Théo Vilain</h1>
       </a>
 
@@ -91,34 +99,79 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
     </div>
 
   </header><!-- End Header -->
-
   <main id="main">
 
-    <!-- ======= Search Results ======= -->
-    <section id="search-result" class="search-result">
+    <section class="single-post-content">
       <div class="container">
         <div class="row">
-          <div class="col-md-9">
-            <h3 class="category-title">Articles</h3>
-            <?php 
-            foreach($allArticles as $article) {
-              $articleDate = new DateTime($article['last_modified']);
-              $formattedArticleDate = $articleDate->format('d M Y');
+          <div class="col-md-9 post-content" data-aos="fade-up">
 
-              echo '<div class="d-md-flex post-entry-2 small-img">
-                <a href="single-post.html" class="me-4 thumbnail">
-                  <img src="assets/img/illu-post.jpg" alt="" class="img-fluid">
-                </a>
-                <div>
-                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                  <h3><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h3>
-                  <p>'.htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8').'</p>
+            <!-- ======= Single Post Content ======= -->
+            <div class="single-post">
+              <div class="post-meta"><span class="mx-1"><span class="date"><?= htmlspecialchars($articleAuthor['username'], ENT_QUOTES, 'UTF-8') ?></span>&bullet;</span> <span><?= htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8') ?></span></div>
+              <h1 class="mb-5"><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?></h1>
+              <p><?= htmlspecialchars($article['chapo'], ENT_QUOTES, 'UTF-8') ?></p>
+              <hr/>
+              <?= $article['content'] ?>
+            </div><!-- End Single Post Content -->
+
+            <!-- ======= Comments ======= -->
+            <div class="comments">
+              <h5 class="comment-title py-4"><?= htmlspecialchars($commentsCount, ENT_QUOTES, 'UTF-8') ?> Commentaires</h5>
+
+              <?php 
+              foreach($comments as $comment) {
+
+                $commentDate = new DateTime($comment['comment_date']);
+                $formattedCommentDate = $commentDate->format('d M Y');
+
+                echo '<div class="comment d-flex">
+                  <div class="flex-shrink-0">
+                    <div class="avatar avatar-sm rounded-circle">
+                      <img class="avatar-img" src="../assets/img/avatar.svg" alt="" class="img-fluid">
+                    </div>
+                  </div>
+                  <div class="flex-shrink-1 ms-2 ms-sm-3">
+                    <div class="comment-meta d-flex">
+                      <h6 class="me-2">'.htmlspecialchars($comment['user_name'], ENT_QUOTES, 'UTF-8').'</h6>
+                      <span class="text-muted">'.htmlspecialchars($formattedCommentDate, ENT_QUOTES, 'UTF-8').'</span>
+                    </div>
+                    <div class="comment-body">'.htmlspecialchars($comment['comment_content'], ENT_QUOTES, 'UTF-8').'</div>
+                  </div>
+                </div>';
+              }
+              
+              ?>
+            </div><!-- End Comments -->
+
+            <!-- ======= Comments Form ======= -->
+            <div class="row justify-content-center mt-5">
+
+              <div class="col-lg-12">
+                <h5 class="comment-title">Laisser un commentaire</h5>
+                <?php if (isset($_SESSION) && isset($_SESSION['id'])) { ?>
+                <form action="" method="post">
+                  <div class="row">
+                    <div class="col-12 mb-3 mt-3">
+                      <textarea class="form-control" id="comment-message" placeholder="Écrivez votre commentaire ici..." cols="30" rows="10"></textarea>
+                      <input type="hidden" id="post-id" value="<?= htmlspecialchars($article['id'], ENT_QUOTES, 'UTF-8') ?>">
+                    </div>
+                    <div class="col-12">
+                      <input type="submit" id="submit-comment-btn" class="btn btn-primary" value="Ajouter un commentaire">
+                    </div>
+                  </div>
+                </form>
+                <?php } else { ?>
+                  <div class="row">
+                  <div class="col-12 mb-3 mt-3">
+                    <p>Vous devez être connecté pour publier un commentaire.</p>
+                  </div>
                 </div>
-              </div>';
-            }
-            ?>
-          </div>
+                <?php } ?>
+              </div>
+            </div><!-- End Comments Form -->
 
+          </div>
           <div class="col-md-3">
             <!-- ======= Sidebar ======= -->
             <div class="aside-block">
@@ -169,11 +222,9 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
               </div>
             </div>
           </div>
-
         </div>
       </div>
-    </section> <!-- End Search Result -->
-
+    </section>
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
@@ -210,7 +261,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
                     echo '<li>
                       <a href="single-post.html" class="d-flex align-items-center">
-                        <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
+                        <img src="../assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
                           <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
@@ -261,18 +312,17 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
   </footer>
 
-
   <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/js/comments.js"></script>
 
   <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
+  <script src="../assets/js/main.js"></script>
 
 </body>
 
