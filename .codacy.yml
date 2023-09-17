@@ -1,0 +1,10 @@
+exclude_paths:
+  - "assets/css/**"
+  - "assets/files/**"
+  - "assets/img/**"
+  - "assets/scss/**"
+  - "assets/vendor/**"
+  - "diagrams/**"
+  - "sql/**"
+  - "vendor/**"
+  - "**.js"
