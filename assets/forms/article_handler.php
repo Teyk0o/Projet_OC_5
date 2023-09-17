@@ -120,7 +120,7 @@ try {
     echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données.']);
 }
 
-function addArticle(PDO $conn) {
+function addArticle(PDO $conn) : void {
     if (isset($_SESSION) && isset($_SESSION['id'])) {
 
         $userInfos = $conn->prepare("SELECT * FROM users WHERE id = :id");
@@ -163,7 +163,7 @@ function addArticle(PDO $conn) {
     }
 }
 
-function deleteComment(Int $commentId, PDO $connection) {
+function deleteComment(Int $commentId, PDO $connection) : bool {
     try {
         $stmt = $connection->prepare("DELETE FROM comments WHERE id = :id");
         $stmt->bindParam(":id", $commentId);
@@ -174,7 +174,7 @@ function deleteComment(Int $commentId, PDO $connection) {
     }
 }
 
-function approveComment(Int $commentId, PDO $connection) {
+function approveComment(Int $commentId, PDO $connection) : bool {
     try {
         $stmt = $connection->prepare("UPDATE comments SET approved = 1 WHERE id = :id");
         $stmt->bindParam(":id", $commentId);
@@ -185,14 +185,14 @@ function approveComment(Int $commentId, PDO $connection) {
     }
 }
 
-function secureInput(String $data) {
+function secureInput(String $data) : string {
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
 }
 
-function generateSlug(String $string) {
+function generateSlug(String $string) : string {
     $slug = strtolower($string);
     // Remplace les caractères non alphanumériques par des tirets
     $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);

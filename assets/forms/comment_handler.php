@@ -50,7 +50,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
 
 };
 
-function secureInput(String $data) {
+function secureInput(String $data) : string {
     $data = trim($data);               // Supprime les espaces inutiles
     $data = strip_tags($data);         // Supprime les balises HTML et PHP
     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8'); // Convertit les caractères spéciaux en entités HTML
