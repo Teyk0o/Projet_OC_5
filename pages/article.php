@@ -20,7 +20,6 @@ $articleDate = new DateTime($article['last_modified']);
 $formattedArticleDate = $articleDate->format('d M Y');
 
 $comments = $articlesInstance->getCommentsByArticleId($article['id']);
-
 $commentsCount = count($comments);
 
 $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);

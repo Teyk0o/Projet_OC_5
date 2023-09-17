@@ -56,5 +56,3 @@ function secureInput($data) {
     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8'); // Convertit les caractères spéciaux en entités HTML
     return $data;
 }
-
-?>

@@ -1,5 +1,4 @@
 RewriteEngine On
-RewriteBase /P5OC/
 
 RewriteRule ^articles$ pages/articles.php [L]
 RewriteRule ^auth$ pages/auth.php [L]

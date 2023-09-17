@@ -184,5 +184,4 @@ class Articles
             die("Erreur lors de la récupération des commentaires non approuvés : " . $e->getMessage());
         }
     }
-    
 } // end class Articles
