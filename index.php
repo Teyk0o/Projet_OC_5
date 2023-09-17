@@ -8,6 +8,7 @@ $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 session_start();
+
 $nonce = bin2hex(random_bytes(16));
 $_SESSION['nonce'] = $nonce;
 
@@ -76,13 +77,27 @@ $articlesCount = 0;
         <ul>
           <li><a href="/">Accueil</a></li>
           <li><a href="/articles">Les articles</a></li>
-          <li><a href="about.html">À propos</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/a-propos">À propos</a></li>
         </ul>
       </nav><!-- .navbar -->
 
       <div class="position-relative">
-        <a href="#" class="mx-2"><span class="bi-person-fill"></span></a>
+        
+        <?php 
+        if (isset($_SESSION) && isset($_SESSION['id'])) {
+          $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
+
+          if ($userInfos['role'] === "admin") {
+            echo '<a href="/admin" class="mx-2"><span class="bi-pencil-fill"></span></a>';
+            echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
+          } else {
+            echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
+          }
+        } else {
+          echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
+        }
+        ?>
+
         <a href="https://github.com/Teyk0o" target="_blank" class="mx-2"><span class="bi-github"></span></a>
         <a href="https://www.linkedin.com/in/th%C3%A9o-vilain/" target="_blank" class="mx-2"><span class="bi-linkedin"></span></a>
 
@@ -169,9 +184,9 @@ $articlesCount = 0;
         <div class="row g-5">
           <div class="col-lg-4">
             <div class="post-entry-1 lg">
-              <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+              <a href="/article/<?= htmlspecialchars($randomArticle['slug'], ENT_QUOTES, 'UTF-8') ?>"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
               <div class="post-meta"><span class="mx-1">&bullet;</span> <span><?= htmlspecialchars($formattedRandomArticleDate, ENT_QUOTES, 'UTF-8') ?></span></div>
-              <h2><a href="single-post.html"><?= htmlspecialchars($randomArticle['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+              <h2><a href="/article/<?= htmlspecialchars($randomArticle['slug'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($randomArticle['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
               <p class="mb-4 d-block"><?= htmlspecialchars($trimmedRandomArticleContent, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
           </div>
@@ -196,9 +211,9 @@ $articlesCount = 0;
                     }
 
                     echo '<div class="post-entry-1">
-                      <a href="single-post.html"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+                      <a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
                       <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                      <h2><a href="single-post.html">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                      <h2><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
               
                     $articlesCount++;
@@ -294,16 +309,16 @@ $articlesCount = 0;
           <div class="col-lg-4">
             <h3 class="footer-heading">À propos de Théo Vilain</h3>
             <p>Jeune développeur back-end développant depuis déjà plus de 10 ans passionné par l'informatique, l'aérospatial et l'aéronautique et souhaitant entrer dans le secteur de l'aérospatial.</p>
-            <p><a href="about.html" class="footer-link-more">En savoir plus</a></p>
+            <p><a href="/a-propos" class="footer-link-more">En savoir plus</a></p>
           </div>
           <div class="col-6 col-lg-2">
             <h3 class="footer-heading">Navigation</h3>
             <ul class="footer-links list-unstyled">
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Accueil</a></li>
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Les articles</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Connexion / Inscription</a></li>
-              <li><a href="single-post.html"><i class="bi bi-chevron-right"></i> À propos</a></li>
-              <li><a href="about.html"><i class="bi bi-chevron-right"></i> Espace administration</a></li>
+              <li><a href="/"><i class="bi bi-chevron-right"></i> Accueil</a></li>
+              <li><a href="/articles"><i class="bi bi-chevron-right"></i> Les articles</a></li>
+              <li><a href="/auth"><i class="bi bi-chevron-right"></i> Connexion / Inscription</a></li>
+              <li><a href="/a-propos"><i class="bi bi-chevron-right"></i> À propos</a></li>
+              <li><a href="/admin"><i class="bi bi-chevron-right"></i> Espace administration</a></li>
             </ul>
           </div>
           <div class="col-lg-4">
@@ -317,7 +332,7 @@ $articlesCount = 0;
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
                     echo '<li>
-                      <a href="single-post.html" class="d-flex align-items-center">
+                      <a href="'.htmlspecialchars($articleFooter['slug'], ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>

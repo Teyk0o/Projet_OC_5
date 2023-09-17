@@ -1,21 +1,16 @@
-<?php
+<?php 
 require '../vendor/autoload.php';
 require '../assets/php/Articles.php';
-
-session_start();
 
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__.'/../');
 $dotenv->load();
 
+session_start();
+
 $articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
-$mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
-$lastArticles = $articlesInstance->getRecentArticles(5);
-$allArticles = $articlesInstance->getAllArticles();
-
 $footerArticles = $articlesInstance->getRecentArticles(4);
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -24,7 +19,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Les articles - Théo Vilain</title>
+  <title>À propos - Théo Vilain</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -71,6 +66,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
       </nav><!-- .navbar -->
 
       <div class="position-relative">
+        
         <?php 
         if (isset($_SESSION) && isset($_SESSION['id'])) {
           $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
@@ -85,6 +81,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
           echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
         }
         ?>
+
         <a href="https://github.com/Teyk0o" target="_blank" class="mx-2"><span class="bi-github"></span></a>
         <a href="https://www.linkedin.com/in/th%C3%A9o-vilain/" target="_blank" class="mx-2"><span class="bi-linkedin"></span></a>
 
@@ -107,86 +104,44 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   </header><!-- End Header -->
 
   <main id="main">
-
-    <section id="search-result" class="search-result">
-      <div class="container">
+    <section>
+      <div class="container" data-aos="fade-up">
         <div class="row">
-          <div class="col-md-9">
-            <h3 class="category-title">Articles</h3>
-            <?php 
-            foreach($allArticles as $article) {
-              $articleDate = new DateTime($article['last_modified']);
-              $formattedArticleDate = $articleDate->format('d M Y');
+          <div class="col-lg-12 text-center mb-5">
+            <h1 class="page-title">À propos</h1>
+          </div>
+        </div>
 
-              echo '<div class="d-md-flex post-entry-2 small-img">
-                <a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'" class="me-4 thumbnail">
-                  <img src="assets/img/illu-post.jpg" alt="" class="img-fluid">
-                </a>
-                <div>
-                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                  <h3><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h3>
-                  <p>'.htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8').'</p>
-                </div>
-              </div>';
-            }
-            ?>
+        <div class="row mb-5">
+
+          <div class="d-md-flex post-entry-2 half">
+            <a href="#" class="me-4 thumbnail">
+              <img src="assets/img/post-slide-2.jpg" alt="" class="img-fluid">
+            </a>
+            <div class="ps-md-5 mt-4 mt-md-0">
+              <div class="post-meta mt-4">En savoir plus</div>
+              <h2 class="mb-4 display-4">Qui est Théo Vilain ?</h2>
+
+              <p>Né à Vierzon en 2003, Théo Vilain est un jeune homme animé d'une passion ardente pour l'informatique et l'espace. Sa trajectoire académique et professionnelle reflète cet engouement. Après un parcours diversifié au lycée Henri Brisson, où il a exploré l'aéronautique avant de se tourner résolument vers l'informatique et les sciences de l'ingénieur, Théo s'est imposé comme une figure montante dans le monde du développement informatique. Actuellement en formation avancée chez OpenClassrooms et occupant un rôle clé chez Reservatoo, il allie théorie et pratique avec une aisance remarquable.</p>
+            </div>
           </div>
 
-          <div class="col-md-3">
-            <!-- ======= Sidebar ======= -->
-            <div class="aside-block">
+          <div class="d-md-flex post-entry-2 half mt-5">
+            <a href="#" class="me-4 thumbnail order-2">
+              <img src="assets/img/post-slide-1.jpg" alt="" class="img-fluid">
+            </a>
+            <div class="pe-md-5 mt-4 mt-md-0">
+              <div class="post-meta mt-4">Les mots clés</div>
+              <h2 class="mb-4 display-4">Ambitions &amp; Motivation</h2>
 
-              <ul class="nav nav-pills custom-tab-nav mb-4" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="pills-popular-tab" data-bs-toggle="pill" data-bs-target="#pills-popular" type="button" role="tab" aria-controls="pills-popular" aria-selected="true">+ commentés</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="pills-trending-tab" data-bs-toggle="pill" data-bs-target="#pills-trending" type="button" role="tab" aria-controls="pills-trending" aria-selected="false">+ récents</button>
-                </li>
-              </ul>
-
-              <div class="tab-content" id="pills-tabContent">
-
-                <!-- Popular -->
-                <div class="tab-pane fade show active" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
-                    <?php 
-                        foreach($mostCommentedArticles as $article) {
-                            $articleDate = new DateTime($article['last_modified']);
-                            $formattedArticleDate = $articleDate->format('d M Y');
-
-                            echo '<div class="post-entry-1 border-bottom">
-                                <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
-                            </div>';
-                        }
-                    ?>
-                </div> <!-- End Popular -->
-
-                <!-- Trending -->
-                <div class="tab-pane fade" id="pills-trending" role="tabpanel" aria-labelledby="pills-trending-tab">
-
-                  <?php 
-                  foreach($lastArticles as $article) {
-                    $articleDate = new DateTime($article['last_modified']);
-                    $formattedArticleDate = $articleDate->format('d M Y');
-
-                    echo '<div class="post-entry-1 border-bottom">
-                        <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
-                    </div>';
-                  }
-                  
-                  ?>
-                </div> <!-- End Trending -->
-
-              </div>
+              <p>Les ambitions de Théo ne connaissent pas de limites. Ses projets personnels, notamment les simulateurs spatiaux qu'il a conçus, témoignent de son désir d'intégrer technologie et exploration spatiale. Son rêve ultime ? Participer aux sélections d'astronautes et, un jour, toucher les étoiles. En parallèle, Théo envisage une formation de pilote, ajoutant une autre dimension à son profil déjà impressionnant. Sa conviction profonde est que, avec détermination et passion, tous les rêves sont à portée de main.</p>
             </div>
           </div>
 
         </div>
-      </div>
-    </section> <!-- End Search Result -->
 
+      </div>
+    </section>
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
@@ -273,7 +228,6 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
     </div>
 
   </footer>
-
 
   <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
