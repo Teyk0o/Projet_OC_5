@@ -56,9 +56,9 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] === "POST") 
 /**
 * Fonction qui permet de nettoyer les variables
 *
-* @return variable
+* @return string
 */
-function cleanVariable($input) 
+function cleanVariable(String $input) 
 {
     $input = htmlspecialchars($input, ENT_QUOTES, 'utf-8');
     $input = strip_tags($input);

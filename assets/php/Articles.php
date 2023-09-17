@@ -68,7 +68,7 @@ class Articles
      *
      * @return array
      */
-    public function getRecentArticles($limit)
+    public function getRecentArticles(Int $limit)
     {
         $query = "SELECT * FROM posts ORDER BY last_modified DESC LIMIT :limit";
         $stmt = $this->database->prepare($query);
@@ -94,7 +94,7 @@ class Articles
      *
      * @return array
      */
-    public function getMostCommentedArticles($limit = 5)
+    public function getMostCommentedArticles(Int $limit = 5)
     {
         $query = 'SELECT posts.*, COUNT(comments.id) AS comment_count
                  FROM posts
@@ -149,7 +149,7 @@ class Articles
      * Récupère l'auteur d'un article spécifié par son id.
      *
      * @param int $userId L'ID de l'auteur pour lequel récupéré les informations.
-     * @return array Les informations de l'auteur.
+     * @return array|null Les informations de l'auteur ou rien en cas d'erreur.
      */
     public function getAuthorById($userId) {
         try {
@@ -181,7 +181,7 @@ class Articles
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            die("Erreur lors de la récupération des commentaires non approuvés : " . $e->getMessage());
+            throw new \RuntimeException("Erreur lors de la récupération des commentaires non approuvés: " . $e->getMessage());
         }
     }
 } // end class Articles
