@@ -169,4 +169,19 @@ class Articles
             return null;
         }
     }
+
+    /**
+     * Récupère les commentaires non approuvés.
+     *
+     * @return array Les commentaires non approuvés.
+     */
+    public function getAllCommentsPendingApproval() {
+        try {
+            $query = $this->database->prepare("SELECT * FROM comments WHERE approved != 1");
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Erreur lors de la récupération des commentaires non approuvés : " . $e->getMessage());
+        }
+    }
 } // end class Articles
