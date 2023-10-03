@@ -1,22 +1,70 @@
 <?php
-// index.php
 
-// Tableau de routage
-$routes = [
-    '/' => 'HomeController@index',
-    '/article' => 'ArticleController@index',
-    '/article/view' => 'ArticleController@view',
-    // ... ajoutez d'autres routes ici
-];
+require_once 'vendor/autoload.php';
 
-// Obtenez l'URI actuelle
-$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+// Instanciation des contrôleurs
+$articleController = new Controllers\ArticleController();
+$commentController = new Controllers\CommentController();
+$userController = new Controllers\UserController();
 
-// Vérifiez si l'URI existe dans le tableau de routage
-if (isset($routes[$uri])) {
-    list($controller, $method) = explode('@', $routes[$uri]);
-    call_user_func_array([new $controller, $method], []);
-} else {
-    // Gérer les routes non trouvées
-    echo "404 Not Found";
+// Récupération de l'action à exécuter depuis l'URL
+$action = isset($_GET['action']) ? $_GET['action'] : 'listArticles';
+
+// Routage en fonction de l'action
+switch ($action) {
+    case 'listArticles':
+        $articleController->listArticles();
+        break;
+        
+    case 'addArticle':
+        $articleController->addArticle();
+        break;
+
+    case 'modifyArticle':
+        $articleController->modifyArticle();
+        break;
+
+    case 'fetchArticle':
+        $articleController->fetchArticle();
+        break;
+
+    case 'deleteArticle':
+        $articleController->deleteArticle();
+        break;
+
+    case 'postComment':
+        $commentController->postComment();
+        break;
+
+    case 'fetchCommentsForArticle':
+        if (isset($_GET['articleId'])) {
+            $commentController->fetchCommentsForArticle($_GET['articleId']);
+        } else {
+            echo 'Erreur : aucun identifiant d\'article envoyé pour les commentaires';
+        }
+        break;
+
+    case 'deleteComment':
+        if (isset($_GET['commentId'])) {
+            $commentController->deleteComment($_GET['commentId']);
+        } else {
+            echo 'Erreur : aucun identifiant de commentaire envoyé';
+        }
+        break;
+
+    case 'login':
+        $userController->login();
+        break;
+
+    case 'register':
+        $userController->register();
+        break;
+
+    case 'logout':
+        $userController->logout();
+        break;
+
+    default:
+        echo 'Action non reconnue';
+        break;
 }

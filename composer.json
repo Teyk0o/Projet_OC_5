@@ -2,9 +2,11 @@
     "name": "theov/p5oc",
     "autoload": {
         "psr-4": {
-            "Theov\\P5oc\\": "src/"
+            "Controllers\\": "Controllers/",
+            "Models\\": "Models/",
+            "Resources\\": "Resources/"
         }
-    },
+    },    
     "authors": [
         {
             "name": "Theo Vilain"
