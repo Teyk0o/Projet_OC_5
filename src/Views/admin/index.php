@@ -1,5 +1,4 @@
 <?php
-require '../vendor/autoload.php';
 require '../assets/php/Articles.php';
 
 session_start();
@@ -10,11 +9,23 @@ $dotenv = Dotenv::createImmutable(__DIR__.'/../');
 $dotenv->load();
 
 $articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
-$mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
-$lastArticles = $articlesInstance->getRecentArticles(5);
-$allArticles = $articlesInstance->getAllArticles();
 
 $footerArticles = $articlesInstance->getRecentArticles(4);
+
+$comments = $articlesInstance->getAllCommentsPendingApproval();
+
+
+if (isset($_SESSION) && isset($_SESSION['id'])) {
+  $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
+
+  if ($userInfos['role'] === "admin") {
+    $articles = $articlesInstance->getAllArticles();
+  } else {
+    header('Location: /auth');
+  }
+} else {
+  header('Location: /auth');
+}
 
 ?>
 <!DOCTYPE html>
@@ -24,7 +35,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Les articles - Théo Vilain</title>
+  <title>Administration - Théo Vilain</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -63,7 +74,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
       <a href="/" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <!-- <img src="../assets/img/logo.png" alt=""> -->
         <h1>Théo Vilain</h1>
       </a>
 
@@ -110,91 +121,151 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
     </div>
 
   </header><!-- End Header -->
-
   <main id="main">
 
-    <section id="search-result" class="search-result">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-9">
-            <h3 class="category-title">Articles</h3>
-            <?php 
-            foreach($allArticles as $article) {
-              $articleDate = new DateTime($article['last_modified']);
-              $formattedArticleDate = $articleDate->format('d M Y');
-
-              echo '<div class="d-md-flex post-entry-2 small-img">
-                <a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'" class="me-4 thumbnail">
-                  <img src="assets/img/illu-post.jpg" alt="" class="img-fluid">
-                </a>
-                <div>
-                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                  <h3><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h3>
-                  <p>'.htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8').'</p>
-                </div>
-              </div>';
-            }
-            ?>
-          </div>
-
-          <div class="col-md-3">
-            <!-- ======= Sidebar ======= -->
-            <div class="aside-block">
-
-              <ul class="nav nav-pills custom-tab-nav mb-4" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="pills-popular-tab" data-bs-toggle="pill" data-bs-target="#pills-popular" type="button" role="tab" aria-controls="pills-popular" aria-selected="true">+ commentés</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="pills-trending-tab" data-bs-toggle="pill" data-bs-target="#pills-trending" type="button" role="tab" aria-controls="pills-trending" aria-selected="false">+ récents</button>
-                </li>
-              </ul>
-
-              <div class="tab-content" id="pills-tabContent">
-
-                <!-- Popular -->
-                <div class="tab-pane fade show active" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
-                    <?php 
-                        foreach($mostCommentedArticles as $article) {
-                            $articleDate = new DateTime($article['last_modified']);
-                            $formattedArticleDate = $articleDate->format('d M Y');
-
-                            echo '<div class="post-entry-1 border-bottom">
-                                <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
-                            </div>';
-                        }
-                    ?>
-                </div> <!-- End Popular -->
-
-                <!-- Trending -->
-                <div class="tab-pane fade" id="pills-trending" role="tabpanel" aria-labelledby="pills-trending-tab">
-
-                  <?php 
-                  foreach($lastArticles as $article) {
-                    $articleDate = new DateTime($article['last_modified']);
-                    $formattedArticleDate = $articleDate->format('d M Y');
-
-                    echo '<div class="post-entry-1 border-bottom">
-                        <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
-                    </div>';
-                  }
-                  
-                  ?>
-                </div> <!-- End Trending -->
-
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+          <div class="col-md-10">
+              <h1 class="text-center mb-4 mt-4">Gestion des articles</h1>
+              <div class="d-flex justify-content-end mb-3">
+                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addArticleModal">Ajouter un article</a>
               </div>
-            </div>
+              <table class="table table-bordered table-hover mb-5">
+                  <thead class="thead-dark">
+                      <tr>
+                          <th>Titre</th>
+                          <th>Dernières modifications</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <?php foreach ($articles as $article): ?>
+                          <tr>
+                              <td><?= $article['title'] ?></td>
+                              <td><?= $article['last_modified'] ?></td>
+                              <td>
+                                  <a href="#" class="btn btn-warning btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#modifyArticleModal">Modifier</a>
+                                  <a href="#" class="btn btn-danger btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#deleteArticleModal">Supprimer</a>
+                              </td>
+                          </tr>
+                      <?php endforeach; ?>
+                  </tbody>
+              </table>
           </div>
-
+      </div>
+    </div>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+          <div class="col-md-10">
+              <h1 class="text-center mb-4 mt-4">Gestion des commentaires en attente</h1>
+              <table class="table table-bordered table-hover mb-5">
+                  <thead class="thead-dark">
+                      <tr>
+                          <th>Contenu</th>
+                          <th>Auteur</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <?php foreach ($comments as $comment): 
+                        $author = $articlesInstance->getAuthorById($comment['author_id']);
+                        ?>
+                          <tr>
+                              <td><?= $comment['content'] ?></td>
+                              <td><?= $author['username'] ?></td>
+                              <td>
+                                  <a href="#" class="btn btn-success btn-sm" data-comment-id="<?= $comment['id'] ?>" id="approveComment">Approuver</a>
+                                  <a href="#" class="btn btn-danger btn-sm" data-comment-id="<?= $comment['id'] ?>" id="disapproveComment">Désapprouver</a>
+                              </td>
+                          </tr>
+                      <?php endforeach; ?>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+    </div>
+  </main>
+  <div class="modal fade" id="addArticleModal" tabindex="-1" role="dialog" aria-labelledby="addArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addArticleModalLabel">Ajouter un article</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" id="addArticleForm" method="post">
+                    <div class="form-group">
+                        <label for="titre">Titre</label>
+                        <input type="text" class="form-control" id="titre" name="titre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="chapo">Chapô</label>
+                        <input type="text" class="form-control" id="chapo" name="chapo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contenu">Contenu</label>
+                        <textarea class="form-control" id="contenu" name="contenu" rows="5" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-primary">Créer l'article</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- Modal pour la modification d'un article -->
+  <div class="modal fade" id="modifyArticleModal" tabindex="-1" aria-labelledby="modifyArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modifyArticleModalLabel">Modifier l'article</h5>
+        </div>
+        <div class="modal-body">
+          <form id="modifyArticleForm">
+            <input type="hidden" id="modify-article-id" name="article_id">
+            <div class="mb-3">
+              <label for="modify-title" class="form-label">Titre</label>
+              <input type="text" class="form-control" id="modify-title" name="title" required>
+            </div>
+            <div class="mb-3">
+              <label for="modify-chapo" class="form-label">Chapô</label>
+              <input type="text" class="form-control" id="modify-chapo" name="chapo" required>
+            </div>
+            <div class="mb-3">
+              <label for="modify-content" class="form-label">Contenu</label>
+              <textarea class="form-control" id="modify-content" name="content" rows="4" required></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+              <button type="submit" class="btn btn-primary">Modifier l'article</button>
+            </div>
+          </form>
         </div>
       </div>
-    </section> <!-- End Search Result -->
+    </div>
+  </div>
+  <div class="modal fade" id="deleteArticleModal" tabindex="-1" aria-labelledby="deleteArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteArticleModalLabel">Supprimer l'article</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Êtes-vous sûr de vouloir supprimer cet article ?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  </main><!-- End #main -->
-
-  <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
 
     <div class="footer-content">
@@ -279,18 +350,26 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
   </footer>
 
-
   <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript">
+    $('.modal').on('hidden.bs.modal', function (e) {
+      $('.modal-backdrop').remove();
+    });
+  </script>
+               
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/admin.js"></script>
 
 </body>
 

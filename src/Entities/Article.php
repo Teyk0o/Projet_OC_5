@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Entities;
+
 class Article {
     private $id;
     private $title;

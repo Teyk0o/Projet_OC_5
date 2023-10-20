@@ -1,15 +1,15 @@
 <?php
 
-namespace Controllers;
+namespace App\Controllers;
 
-use Models\UserModel;
+use App\Repository\UserRepository;
 
 class UserController {
 
-    private $userModel;
+    private $userRepository;
 
     public function __construct() {
-        $this->userModel = new UserModel();
+        $this->userRepository = new UserRepository();
     }
 
     public function login() {
@@ -17,7 +17,7 @@ class UserController {
             $email = $this->secureInput($_POST['email']);
             $password = $this->secureInput($_POST['password']);
 
-            $this->userModel->login($email, $password);
+            $this->userRepository->login($email, $password);
         } else {
             echo 'Informations d\'authentification manquantes.';
         }
@@ -29,14 +29,14 @@ class UserController {
             $password = $this->secureInput($_POST['password']);
             $username = $this->secureInput($_POST['username']);
 
-            $this->userModel->register($email, $password, $username);
+            $this->userRepository->register($email, $password, $username);
         } else {
             echo 'Informations d\'inscription manquantes.';
         }
     }
 
     public function logout() {
-        $this->userModel->logout();
+        // Déco
     }
 
     private function secureInput($data) {

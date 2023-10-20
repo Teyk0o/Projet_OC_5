@@ -1,30 +1,21 @@
 <?php
 
-namespace Models;
+namespace App\Repository;
 
-class UserModel {
+use App\Resources\DatabaseConnection;
 
-    private $db;
-
-    public function __construct() {
-        // Vous devrez initialiser la connexion à la base de données ici.
-        // $this->db = new DatabaseConnection();
-    }
+class UserRepository {
 
     public function login($email, $password) {
         $query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        $stmt = $this->db->prepare($query);
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$email, $password]);
         return $stmt->fetch();
     }
 
     public function register($email, $password, $username) {
         $query = "INSERT INTO users (email, password, username) VALUES (?, ?, ?)";
-        $stmt = $this->db->prepare($query);
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$email, $password, $username]);
-    }
-
-    public function logout() {
-        // Implémentez la logique de déconnexion ici
     }
 }

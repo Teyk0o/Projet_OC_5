@@ -1,15 +1,15 @@
 <?php
 
-namespace Controllers;
+namespace App\Controllers;
 
-use Models\CommentModel;
+use App\Repository\CommentRepository;
 
 class CommentController {
 
-    private $commentModel;
+    private $commentRepository;
 
     public function __construct() {
-        $this->commentModel = new CommentModel();
+        $this->commentRepository = new CommentRepository();
     }
 
     public function postComment() {
@@ -17,21 +17,21 @@ class CommentController {
             $comment = $this->secureInput($_POST['comment-message']);
             $postId = $this->secureInput($_POST['post-id']);
 
-            $this->commentModel->postComment($comment, $postId);
+            $this->commentRepository->postComment($comment, $postId);
         } else {
             echo 'Une erreur est survenue, veuillez réessayer.';
         }
     }
 
     public function fetchCommentsForArticle($articleId) {
-        $comments = $this->commentModel->fetchCommentsForArticle($articleId);
+        $comments = $this->commentRepository->fetchCommentsForArticle($articleId);
         // Vous pouvez maintenant afficher ces commentaires ou les renvoyer en JSON, par exemple.
         // Pour cet exemple, je vais les afficher en tant que JSON.
         echo json_encode($comments);
     }
 
     public function deleteComment($commentId) {
-        $this->commentModel->deleteComment($commentId);
+        $this->commentRepository->deleteComment($commentId);
         echo 'Commentaire supprimé avec succès.';
     }
 

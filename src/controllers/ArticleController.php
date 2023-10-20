@@ -1,15 +1,16 @@
 <?php
 
-namespace Controllers;
+namespace App\Controllers;
 
-use Models\ArticleModel;
+use App\Entities\Article;
+use App\Repository\ArticleRepository;
 
 class ArticleController {
 
-    private $articleModel;
+    private $articleRepository;
 
     public function __construct() {
-        $this->articleModel = new ArticleModel();
+        $this->articleRepository = new ArticleRepository();
     }
 
     public function addArticle() {
@@ -18,20 +19,23 @@ class ArticleController {
             $chapo = $this->secureInput($_POST['chapo']);
             $content = $this->secureInput($_POST['contenu']);
 
-            $this->articleModel->addArticle($title, $chapo, $content);
+            $this->articleRepository->addArticle($title, $chapo, $content);
         } else {
             echo 'Veuillez remplir tous les champs.';
         }
     }
 
     public function modifyArticle() {
-        if (isset($_POST['title'], $_POST['chapo'], $_POST['content'], $_POST['article_id'])) {
-            $title = $this->secureInput($_POST['title']);
-            $chapo = $this->secureInput($_POST['chapo']);
-            $content = $this->secureInput($_POST['content']);
-            $articleId = $this->secureInput($_POST['article_id']);
 
-            $this->articleModel->modifyArticle($title, $chapo, $content, $articleId);
+        if (isset($_POST['title'], $_POST['chapo'], $_POST['content'], $_POST['article_id'])) {
+
+            $article = $this->articleRepository->fetchArticle($this->secureInput($_POST['article_id']));
+            
+            $article->setTitle($this->secureInput($_POST['title']));
+            $article->setChapo($this->secureInput($_POST['chapo']));
+            $article->setContent($this->secureInput($_POST['content']));
+
+            $this->articleRepository->modifyArticle($article);
         } else {
             echo 'Veuillez remplir tous les champs.';
         }
@@ -40,7 +44,7 @@ class ArticleController {
     public function fetchArticle() {
         if (isset($_POST['article_id'])) {
             $articleId = intval($this->secureInput($_POST['article_id']));
-            $this->articleModel->fetchArticle($articleId);
+            $this->articleRepository->fetchArticle($articleId);
         } else {
             echo 'ID de l\'article non spécifié.';
         }
@@ -49,7 +53,7 @@ class ArticleController {
     public function deleteArticle() {
         if (isset($_POST['article_id'])) {
             $articleId = $this->secureInput($_POST['article_id']);
-            $this->articleModel->deleteArticle($articleId);
+            $this->articleRepository->deleteArticle($articleId);
         } else {
             echo 'ID de l\'article manquant.';
         }
@@ -64,10 +68,10 @@ class ArticleController {
 
     public function listArticles() {
         // Récupérez les données nécessaires depuis le modèle
-        $articles = $this->articleModel->getAllArticles();
+        $articles = $this->articleRepository->getAllArticles();
     
         // Incluez la vue
-        require_once 'views/articles/index.php';
+        require_once 'src/views/articles/index.php';
     }
     
 }

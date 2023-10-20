@@ -1,15 +1,13 @@
 <?php
-require '../vendor/autoload.php';
-require '../assets/php/Articles.php';
+
+use App\Repository\Article;
 
 session_start();
 
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->load();
-
-$articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+$articlesInstance = new Article();
+$mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
+$lastArticles = $articlesInstance->getRecentArticles(5);
+$allArticles = $articlesInstance->getAllArticles();
 
 $footerArticles = $articlesInstance->getRecentArticles(4);
 
@@ -21,7 +19,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Authentification - Théo Vilain</title>
+  <title>Les articles - Théo Vilain</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -60,7 +58,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
       <a href="/" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="../assets/img/logo.png" alt=""> -->
+        <!-- <img src="assets/img/logo.png" alt=""> -->
         <h1>Théo Vilain</h1>
       </a>
 
@@ -93,61 +91,105 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
         <a href="#" class="mx-2 js-search-open"><span class="bi-search"></span></a>
         <i class="bi bi-list mobile-nav-toggle"></i>
 
+        <!-- ======= Search Form ======= -->
+        <div class="search-form-wrap js-search-form-wrap">
+          <form action="" class="search-form">
+            <span class="icon bi-search"></span>
+            <input type="text" placeholder="Rechercher un article" class="form-control">
+            <button class="btn js-search-close"><span class="bi-x"></span></button>
+          </form>
+        </div><!-- End Search Form -->
+
       </div>
 
     </div>
 
   </header><!-- End Header -->
-  <main id="main">
-    <div class="container form-container">
-        <div class="row">
-            <!-- Formulaire de Connexion -->
-            <div class="col-md-6 mb-5 mt-5">
-                <h3>Connexion</h3>
-                <form action="" method="post" id="loginForm">
-                    <div class="form-group">
-                        <label for="loginEmail">Email:</label>
-                        <input type="email" class="form-control" id="loginEmail" placeholder="Entrez votre email" name="email" required>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="loginPwd">Mot de passe:</label>
-                        <input type="password" class="form-control" id="loginPwd" placeholder="Entrez votre mot de passe" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">Se connecter</button>
-                </form>
-                <?php 
-                if (isset($_SESSION) && isset($_SESSION['id'])) {
-                    echo '<button class="btn btn-danger mt-3" id="logout">Se déconnecter</button>';
-                }
-                ?>
-            </div>
 
-            <!-- Formulaire d'Inscription -->
-            <div class="col-md-6 mb-5 mt-5">
-                <h3>Inscription</h3>
-                <form action="" method="post" id="registerForm">
-                <div class="form-group">
-                        <label for="registerUsername">Nom d'utilisateur:</label>
-                        <input type="text" class="form-control" id="registerUsername" placeholder="Entrez votre nom d'utilisateur" name="username" required>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="registerEmail">Email:</label>
-                        <input type="email" class="form-control" id="registerEmail" placeholder="Entrez votre email" name="email" required>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="registerPwd">Mot de passe:</label>
-                        <input type="password" class="form-control" id="registerPwd" placeholder="Entrez votre mot de passe" name="password" required>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="registerPwdConfirm">Confirmez le mot de passe:</label>
-                        <input type="password" class="form-control" id="registerPwdConfirm" placeholder="Confirmez votre mot de passe" name="password_confirm" required>
-                    </div>
-                    <button type="submit" class="btn btn-success mt-3">S'inscrire</button>
-                </form>
+  <main id="main">
+
+    <section id="search-result" class="search-result">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <h3 class="category-title">Articles</h3>
+            <?php 
+            foreach($allArticles as $article) {
+              $articleDate = new DateTime($article['last_modified']);
+              $formattedArticleDate = $articleDate->format('d M Y');
+
+              echo '<div class="d-md-flex post-entry-2 small-img">
+                <a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'" class="me-4 thumbnail">
+                  <img src="assets/img/illu-post.jpg" alt="" class="img-fluid">
+                </a>
+                <div>
+                  <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                  <h3><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h3>
+                  <p>'.htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8').'</p>
+                </div>
+              </div>';
+            }
+            ?>
+          </div>
+
+          <div class="col-md-3">
+            <!-- ======= Sidebar ======= -->
+            <div class="aside-block">
+
+              <ul class="nav nav-pills custom-tab-nav mb-4" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="pills-popular-tab" data-bs-toggle="pill" data-bs-target="#pills-popular" type="button" role="tab" aria-controls="pills-popular" aria-selected="true">+ commentés</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="pills-trending-tab" data-bs-toggle="pill" data-bs-target="#pills-trending" type="button" role="tab" aria-controls="pills-trending" aria-selected="false">+ récents</button>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="pills-tabContent">
+
+                <!-- Popular -->
+                <div class="tab-pane fade show active" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
+                    <?php 
+                        foreach($mostCommentedArticles as $article) {
+                            $articleDate = new DateTime($article['last_modified']);
+                            $formattedArticleDate = $articleDate->format('d M Y');
+
+                            echo '<div class="post-entry-1 border-bottom">
+                                <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                            </div>';
+                        }
+                    ?>
+                </div> <!-- End Popular -->
+
+                <!-- Trending -->
+                <div class="tab-pane fade" id="pills-trending" role="tabpanel" aria-labelledby="pills-trending-tab">
+
+                  <?php 
+                  foreach($lastArticles as $article) {
+                    $articleDate = new DateTime($article['last_modified']);
+                    $formattedArticleDate = $articleDate->format('d M Y');
+
+                    echo '<div class="post-entry-1 border-bottom">
+                        <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
+                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                    </div>';
+                  }
+                  
+                  ?>
+                </div> <!-- End Trending -->
+
+              </div>
             </div>
+          </div>
+
         </div>
-    </div>
-  </main>
+      </div>
+    </section> <!-- End Search Result -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
 
     <div class="footer-content">
@@ -232,6 +274,7 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
 
   </footer>
 
+
   <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
@@ -239,10 +282,10 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/auth.js"></script>
 
 </body>
 

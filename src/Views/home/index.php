@@ -1,5 +1,4 @@
 <?php
-require 'vendor/autoload.php';
 require 'assets/php/Articles.php';
 
 use Dotenv\Dotenv;

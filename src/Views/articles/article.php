@@ -1,15 +1,10 @@
 <?php
-require '../vendor/autoload.php';
-require '../assets/php/Articles.php';
+
+use App\Entities\Article;
 
 session_start();
 
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->load();
-
-$articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+$articlesInstance = new Article();
 $mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
 $lastArticles = $articlesInstance->getRecentArticles(5);
 

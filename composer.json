@@ -2,9 +2,7 @@
     "name": "theov/p5oc",
     "autoload": {
         "psr-4": {
-            "Controllers\\": "Controllers/",
-            "Models\\": "Models/",
-            "Resources\\": "Resources/"
+            "App\\": "src/"
         }
     },    
     "authors": [

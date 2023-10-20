@@ -1,5 +1,4 @@
 <?php
-require '../vendor/autoload.php';
 require '../assets/php/Articles.php';
 
 session_start();
@@ -13,21 +12,6 @@ $articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_U
 
 $footerArticles = $articlesInstance->getRecentArticles(4);
 
-$comments = $articlesInstance->getAllCommentsPendingApproval();
-
-
-if (isset($_SESSION) && isset($_SESSION['id'])) {
-  $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-  if ($userInfos['role'] === "admin") {
-    $articles = $articlesInstance->getAllArticles();
-  } else {
-    header('Location: /auth');
-  }
-} else {
-  header('Location: /auth');
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -36,7 +20,7 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Administration - Théo Vilain</title>
+  <title>Authentification - Théo Vilain</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -108,165 +92,61 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
         <a href="#" class="mx-2 js-search-open"><span class="bi-search"></span></a>
         <i class="bi bi-list mobile-nav-toggle"></i>
 
-        <!-- ======= Search Form ======= -->
-        <div class="search-form-wrap js-search-form-wrap">
-          <form action="" class="search-form">
-            <span class="icon bi-search"></span>
-            <input type="text" placeholder="Rechercher un article" class="form-control">
-            <button class="btn js-search-close"><span class="bi-x"></span></button>
-          </form>
-        </div><!-- End Search Form -->
-
       </div>
 
     </div>
 
   </header><!-- End Header -->
   <main id="main">
-
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-          <div class="col-md-10">
-              <h1 class="text-center mb-4 mt-4">Gestion des articles</h1>
-              <div class="d-flex justify-content-end mb-3">
-                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addArticleModal">Ajouter un article</a>
-              </div>
-              <table class="table table-bordered table-hover mb-5">
-                  <thead class="thead-dark">
-                      <tr>
-                          <th>Titre</th>
-                          <th>Dernières modifications</th>
-                          <th>Actions</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php foreach ($articles as $article): ?>
-                          <tr>
-                              <td><?= $article['title'] ?></td>
-                              <td><?= $article['last_modified'] ?></td>
-                              <td>
-                                  <a href="#" class="btn btn-warning btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#modifyArticleModal">Modifier</a>
-                                  <a href="#" class="btn btn-danger btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#deleteArticleModal">Supprimer</a>
-                              </td>
-                          </tr>
-                      <?php endforeach; ?>
-                  </tbody>
-              </table>
-          </div>
-      </div>
-    </div>
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-          <div class="col-md-10">
-              <h1 class="text-center mb-4 mt-4">Gestion des commentaires en attente</h1>
-              <table class="table table-bordered table-hover mb-5">
-                  <thead class="thead-dark">
-                      <tr>
-                          <th>Contenu</th>
-                          <th>Auteur</th>
-                          <th>Actions</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php foreach ($comments as $comment): 
-                        $author = $articlesInstance->getAuthorById($comment['author_id']);
-                        ?>
-                          <tr>
-                              <td><?= $comment['content'] ?></td>
-                              <td><?= $author['username'] ?></td>
-                              <td>
-                                  <a href="#" class="btn btn-success btn-sm" data-comment-id="<?= $comment['id'] ?>" id="approveComment">Approuver</a>
-                                  <a href="#" class="btn btn-danger btn-sm" data-comment-id="<?= $comment['id'] ?>" id="disapproveComment">Désapprouver</a>
-                              </td>
-                          </tr>
-                      <?php endforeach; ?>
-                  </tbody>
-              </table>
-          </div>
-      </div>
-    </div>
-  </main>
-  <div class="modal fade" id="addArticleModal" tabindex="-1" role="dialog" aria-labelledby="addArticleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addArticleModalLabel">Ajouter un article</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+    <div class="container form-container">
+        <div class="row">
+            <!-- Formulaire de Connexion -->
+            <div class="col-md-6 mb-5 mt-5">
+                <h3>Connexion</h3>
+                <form action="" method="post" id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Entrez votre email" name="email" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="loginPwd">Mot de passe:</label>
+                        <input type="password" class="form-control" id="loginPwd" placeholder="Entrez votre mot de passe" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Se connecter</button>
+                </form>
+                <?php 
+                if (isset($_SESSION) && isset($_SESSION['id'])) {
+                    echo '<button class="btn btn-danger mt-3" id="logout">Se déconnecter</button>';
+                }
+                ?>
             </div>
-            <div class="modal-body">
-                <form action="" id="addArticleForm" method="post">
-                    <div class="form-group">
-                        <label for="titre">Titre</label>
-                        <input type="text" class="form-control" id="titre" name="titre" required>
+
+            <!-- Formulaire d'Inscription -->
+            <div class="col-md-6 mb-5 mt-5">
+                <h3>Inscription</h3>
+                <form action="" method="post" id="registerForm">
+                <div class="form-group">
+                        <label for="registerUsername">Nom d'utilisateur:</label>
+                        <input type="text" class="form-control" id="registerUsername" placeholder="Entrez votre nom d'utilisateur" name="username" required>
                     </div>
-                    <div class="form-group">
-                        <label for="chapo">Chapô</label>
-                        <input type="text" class="form-control" id="chapo" name="chapo" required>
+                    <div class="form-group mt-3">
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="Entrez votre email" name="email" required>
                     </div>
-                    <div class="form-group">
-                        <label for="contenu">Contenu</label>
-                        <textarea class="form-control" id="contenu" name="contenu" rows="5" required></textarea>
+                    <div class="form-group mt-3">
+                        <label for="registerPwd">Mot de passe:</label>
+                        <input type="password" class="form-control" id="registerPwd" placeholder="Entrez votre mot de passe" name="password" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                        <button type="submit" class="btn btn-primary">Créer l'article</button>
+                    <div class="form-group mt-3">
+                        <label for="registerPwdConfirm">Confirmez le mot de passe:</label>
+                        <input type="password" class="form-control" id="registerPwdConfirm" placeholder="Confirmez votre mot de passe" name="password_confirm" required>
                     </div>
+                    <button type="submit" class="btn btn-success mt-3">S'inscrire</button>
                 </form>
             </div>
         </div>
     </div>
-  </div>
-  <!-- Modal pour la modification d'un article -->
-  <div class="modal fade" id="modifyArticleModal" tabindex="-1" aria-labelledby="modifyArticleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modifyArticleModalLabel">Modifier l'article</h5>
-        </div>
-        <div class="modal-body">
-          <form id="modifyArticleForm">
-            <input type="hidden" id="modify-article-id" name="article_id">
-            <div class="mb-3">
-              <label for="modify-title" class="form-label">Titre</label>
-              <input type="text" class="form-control" id="modify-title" name="title" required>
-            </div>
-            <div class="mb-3">
-              <label for="modify-chapo" class="form-label">Chapô</label>
-              <input type="text" class="form-control" id="modify-chapo" name="chapo" required>
-            </div>
-            <div class="mb-3">
-              <label for="modify-content" class="form-label">Contenu</label>
-              <textarea class="form-control" id="modify-content" name="content" rows="4" required></textarea>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-              <button type="submit" class="btn btn-primary">Modifier l'article</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal fade" id="deleteArticleModal" tabindex="-1" aria-labelledby="deleteArticleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteArticleModalLabel">Supprimer l'article</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Êtes-vous sûr de vouloir supprimer cet article ?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirmer</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  </main>
   <footer id="footer" class="footer">
 
     <div class="footer-content">
@@ -353,15 +233,6 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
 
   <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <script type="text/javascript">
-    $('.modal').on('hidden.bs.modal', function (e) {
-      $('.modal-backdrop').remove();
-    });
-  </script>
-               
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
@@ -370,7 +241,7 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/admin.js"></script>
+  <script src="assets/js/auth.js"></script>
 
 </body>
 
