@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entities\User;
 use App\Resources\DatabaseConnection;
 
 class UserRepository {
@@ -10,7 +11,13 @@ class UserRepository {
         $query = "SELECT * FROM users WHERE email = ? AND password = ?";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$email, $password]);
-        return $stmt->fetch();
+        $userData = $stmt->fetch();
+    
+        if (!$userData) {
+            throw new \Exception('Invalid email or password');
+        }
+    
+        return new User($userData);
     }
 
     public function register($email, $password, $username) {

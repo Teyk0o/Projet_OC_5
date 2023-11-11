@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entities\Comment;
 use App\Resources\DatabaseConnection;
 
 class CommentRepository {
@@ -16,7 +17,14 @@ class CommentRepository {
         $query = "SELECT * FROM comments WHERE post_id = ?";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$articleId]);
-        return $stmt->fetchAll();
+        $commentsData = $stmt->fetchAll();
+    
+        $comments = [];
+        foreach ($commentsData as $data) {
+            $comments[] = new Comment($data);
+        }
+    
+        return $comments;
     }
 
     public function deleteComment($commentId) {

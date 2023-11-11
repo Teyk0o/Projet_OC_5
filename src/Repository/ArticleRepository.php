@@ -23,8 +23,13 @@ class ArticleRepository {
         $query = "SELECT * FROM posts WHERE id = ?";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$articleId]);
-        return $stmt->fetch();
-        // TODO: Trigger exception if empty
+        $articleData = $stmt->fetch();
+    
+        if (!$articleData) {
+            throw new \Exception("Article not found");
+        }
+    
+        return new Article($articleData);
     }
 
     public function deleteArticle($articleId) {

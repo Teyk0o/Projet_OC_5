@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Entities;
+
 class Comment {
     private $id;
     private $author_id;

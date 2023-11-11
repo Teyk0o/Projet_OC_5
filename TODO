@@ -1,5 +1,5 @@
-- Changer ce que return les repository pour utiliser les Entities
-- Changer comment les articles sont enregistrès dans la DB
-- Dans le code changer Controller et Entity
-- Changer modifyArticle par juste update
-- Vérifier l'existence de l'article avant de l'update
+[x] Changer ce que return les repository pour utiliser les Entities
+[] Changer comment les articles sont enregistrès dans la DB
+[] Dans le code changer Controller et Entity
+[] Changer modifyArticle par juste update
+[] Vérifier l'existence de l'article avant de l'update
