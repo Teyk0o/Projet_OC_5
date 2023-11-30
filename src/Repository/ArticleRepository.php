@@ -50,4 +50,30 @@ class ArticleRepository {
 
         return $output;
     }
+
+    public function getMostCommentedArticles() {
+        $output = [];
+        $query = "SELECT posts.id, posts.title, posts.chapo, posts.content, posts.author_id, posts.slug, posts.last_modified, COUNT(comments.id) AS comment_count FROM posts LEFT JOIN comments ON posts.id = comments.post_id GROUP BY posts.id ORDER BY comment_count DESC LIMIT 5";
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
+        $stmt->execute();
+        $array = $stmt->fetchAll();
+        foreach ($array as $article) {
+            $output[] = new Article($article);
+        }
+
+        return $output;
+    }
+
+    public function getFooterArticle() {
+        $output = [];
+        $query = "SELECT * FROM posts ORDER BY id DESC LIMIT 2";
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
+        $stmt->execute();
+        $array = $stmt->fetchAll();
+        foreach ($array as $article) {
+            $output[] = new Article($article);
+        }
+
+        return $output;
+    }
 }

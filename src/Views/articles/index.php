@@ -1,17 +1,3 @@
-<?php
-
-use App\Repository\Article;
-
-session_start();
-
-$articlesInstance = new Article();
-$mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
-$lastArticles = $articlesInstance->getRecentArticles(5);
-$allArticles = $articlesInstance->getAllArticles();
-
-$footerArticles = $articlesInstance->getRecentArticles(4);
-
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -114,8 +100,8 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
           <div class="col-md-9">
             <h3 class="category-title">Articles</h3>
             <?php 
-            foreach($allArticles as $article) {
-              $articleDate = new DateTime($article['last_modified']);
+            foreach($articles as $article) {
+              $articleDate = new DateTime($article->getLastModified());
               $formattedArticleDate = $articleDate->format('d M Y');
 
               echo '<div class="d-md-flex post-entry-2 small-img">
@@ -124,8 +110,8 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
                 </a>
                 <div>
                   <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                  <h3><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h3>
-                  <p>'.htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8').'</p>
+                  <h3><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h3>
+                  <p>'.htmlspecialchars($article->getChapo(), ENT_QUOTES, 'UTF-8').'</p>
                 </div>
               </div>';
             }
@@ -151,12 +137,12 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
                 <div class="tab-pane fade show active" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
                     <?php 
                         foreach($mostCommentedArticles as $article) {
-                            $articleDate = new DateTime($article['last_modified']);
+                            $articleDate = new DateTime($article->getLastModified());
                             $formattedArticleDate = $articleDate->format('d M Y');
 
                             echo '<div class="post-entry-1 border-bottom">
                                 <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h2>
                             </div>';
                         }
                     ?>
@@ -217,16 +203,16 @@ $footerArticles = $articlesInstance->getRecentArticles(4);
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                  foreach ($footerArticles as $articleFooter) {
-                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
+                  foreach ($articleFooter as $article) {
+                    $footerArticleDate = new DateTime($article->getLastModified());
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
                     echo '<li>
-                      <a href="/article/'.htmlspecialchars($articleFooter['slug'], ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
+                      <a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
+                          <span>'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

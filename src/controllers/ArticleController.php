@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Entities\Article;
 use App\Repository\ArticleRepository;
 
 class ArticleController {
@@ -69,6 +68,8 @@ class ArticleController {
     public function listArticles() {
         // Récupérez les données nécessaires depuis le modèle
         $articles = $this->articleRepository->getAllArticles();
+        $mostCommentedArticles = $this->articleRepository->getMostCommentedArticles();
+        $articleFooter = $this->articleRepository->getFooterArticle();
     
         // Incluez la vue
         require_once 'src/views/articles/index.php';
