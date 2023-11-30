@@ -58,10 +58,8 @@
 
       <div class="position-relative">
         <?php 
-        if (isset($_SESSION) && isset($_SESSION['id'])) {
-          $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-          if ($userInfos['role'] === "admin") {
+        if (isset($userInfos) && !empty($userInfos)) {
+          if ($userInfos->getRole() === "admin") {
             echo '<a href="/admin" class="mx-2"><span class="bi-pencil-fill"></span></a>';
             echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
           } else {
@@ -153,12 +151,12 @@
 
                   <?php 
                   foreach($lastArticles as $article) {
-                    $articleDate = new DateTime($article['last_modified']);
+                    $articleDate = new DateTime($article->getLastModified());
                     $formattedArticleDate = $articleDate->format('d M Y');
 
                     echo '<div class="post-entry-1 border-bottom">
                         <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
                   }
                   

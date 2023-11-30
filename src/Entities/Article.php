@@ -10,6 +10,7 @@ class Article {
     private $author_id;
     private $slug;
     private $last_modified;
+    private $username;
 
     public function __construct(array $data = []) {
         $this->hydrate($data);
@@ -29,16 +30,18 @@ class Article {
     public function getTitle() { return $this->title; }
     public function getChapo() { return $this->chapo; }
     public function getContent() { return $this->content; }
-    public function getAuthor_id() { return $this->author_id; }
+    public function getAuthorId() { return $this->author_id; }
     public function getSlug() { return $this->slug; }
     public function getLastModified() { return $this->last_modified; }
+    public function getUsername() { return $this->username; }
 
     // Setters
     public function setId($id) { $this->id = $id; }
     public function setTitle($title) { $this->title = $title; }
     public function setChapo($chapo) { $this->chapo = $chapo; }
     public function setContent($content) { $this->content = $content; }
-    public function setAuthor_id($author_id) { $this->author_id = $author_id; }
+    public function setAuthorId($author_id) { $this->author_id = $author_id; }
     public function setSlug($slug) { $this->slug = $slug; }
     public function setLastModified($last_modified) { $this->last_modified = $last_modified; }
+    public function setUsername($username) { $this->username = $username; }
 }

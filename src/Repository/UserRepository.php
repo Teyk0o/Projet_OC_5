@@ -25,4 +25,40 @@ class UserRepository {
         $stmt = DatabaseConnection::getPDO()->prepare($query);
         $stmt->execute([$email, $password, $username]);
     }
+
+    public function getUserInfos($session) {
+        if (isset($session) && isset($session['id'])) {
+            $query = "SELECT * FROM users WHERE id = ?";
+            $stmt = DatabaseConnection::getPDO()->prepare($query);
+            $stmt->execute([$session['id']]);
+            $userData = $stmt->fetch();
+        
+            if (!$userData) {
+                throw new \Exception('User not found');
+            }
+        
+            return new User($userData);
+        }
+    }
+
+    public function getUserInfosById($id) {
+        $query = "SELECT * FROM users WHERE id = ?";
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
+        $stmt->execute([$id]);
+        $userData = $stmt->fetch();
+    
+        if (!$userData) {
+            throw new \Exception('User not found');
+        }
+    
+        return new User($userData);
+    }
+
+    public function getUserNonce($session) {
+        if (isset($session)) {
+            return $session['nonce'];
+        } else {
+            throw new \Exception('No session found');
+        }
+    }
 }

@@ -1,32 +1,3 @@
-<?php
-require 'assets/php/Articles.php';
-
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-session_start();
-
-$nonce = bin2hex(random_bytes(16));
-$_SESSION['nonce'] = $nonce;
-
-$articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
-$randomArticle = $articlesInstance->getRandomArticle();
-$allArticles = $articlesInstance->getRecentArticles(6);
-
-$footerArticles = $articlesInstance->getRecentArticles(4);
-
-$randomArticleDate = new DateTime($randomArticle['last_modified']);
-$formattedRandomArticleDate = $randomArticleDate->format('d M Y');
-$trimmedRandomArticleContent = substr($randomArticle['content'], 0, 360);
-if (strlen($randomArticle['content']) > 250) {
-    $trimmedRandomArticleContent .= "...";
-}
-
-$articlesCount = 0;
-
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -88,10 +59,8 @@ $articlesCount = 0;
       <div class="position-relative">
         
         <?php 
-        if (isset($_SESSION) && isset($_SESSION['id'])) {
-          $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-          if ($userInfos['role'] === "admin") {
+        if (isset($userInfos) && !empty($userInfos)) {
+          if ($userInfos->getRole() === "admin") {
             echo '<a href="/admin" class="mx-2"><span class="bi-pencil-fill"></span></a>';
             echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
           } else {
@@ -188,10 +157,10 @@ $articlesCount = 0;
         <div class="row g-5">
           <div class="col-lg-4">
             <div class="post-entry-1 lg">
-              <a href="/article/<?= htmlspecialchars($randomArticle['slug'], ENT_QUOTES, 'UTF-8') ?>"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
-              <div class="post-meta"><span class="mx-1">&bullet;</span> <span><?= htmlspecialchars($formattedRandomArticleDate, ENT_QUOTES, 'UTF-8') ?></span></div>
-              <h2><a href="/article/<?= htmlspecialchars($randomArticle['slug'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($randomArticle['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
-              <p class="mb-4 d-block"><?= htmlspecialchars($trimmedRandomArticleContent, ENT_QUOTES, 'UTF-8') ?></p>
+              <a href="/article/<?= htmlspecialchars($randomArticle[0]->getSlug(), ENT_QUOTES, 'UTF-8') ?>"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+              <div class="post-meta"><span class="mx-1">&bullet;</span> <span><?= htmlspecialchars((new DateTime($randomArticle[0]->getLastModified()))->format('d M Y'), ENT_QUOTES, 'UTF-8') ?></span></div>
+              <h2><a href="/article/<?= htmlspecialchars($randomArticle[0]->getSlug(), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($randomArticle[0]->getTitle(), ENT_QUOTES, 'UTF-8') ?></a></h2>
+              <p class="mb-4 d-block"><?= htmlspecialchars($randomArticle[0]->getChapo(), ENT_QUOTES, 'UTF-8') ?></p>
             </div>
           </div>
 
@@ -200,8 +169,9 @@ $articlesCount = 0;
 
 
               <?php
-                foreach ($allArticles as $article) {
-                    $date = new DateTime($article['last_modified']);
+                $articlesCount = 0;
+                foreach ($randomArticles as $article) {
+                    $date = new DateTime($article->getLastModified());
                     $formattedDate = $date->format('d M Y');
 
                     if ($articlesCount === 0) {
@@ -215,9 +185,9 @@ $articlesCount = 0;
                     }
 
                     echo '<div class="post-entry-1">
-                      <a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
+                      <a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'"><img src="assets/img/illu-post.jpg" alt="" class="img-fluid"></a>
                       <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                      <h2><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                      <h2><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
               
                     $articlesCount++;
@@ -331,16 +301,16 @@ $articlesCount = 0;
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                  foreach ($footerArticles as $articleFooter) {
-                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
+                  foreach ($articleFooter as $article) {
+                    $footerArticleDate = new DateTime($article->getLastModified());
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
                     echo '<li>
-                      <a href="'.htmlspecialchars($articleFooter['slug'], ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
+                      <a href="'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
+                          <span>'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

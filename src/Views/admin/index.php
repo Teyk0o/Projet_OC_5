@@ -1,33 +1,3 @@
-<?php
-require '../assets/php/Articles.php';
-
-session_start();
-
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->load();
-
-$articlesInstance = new Articles($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
-
-$footerArticles = $articlesInstance->getRecentArticles(4);
-
-$comments = $articlesInstance->getAllCommentsPendingApproval();
-
-
-if (isset($_SESSION) && isset($_SESSION['id'])) {
-  $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-  if ($userInfos['role'] === "admin") {
-    $articles = $articlesInstance->getAllArticles();
-  } else {
-    header('Location: /auth');
-  }
-} else {
-  header('Location: /auth');
-}
-
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -88,10 +58,8 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
 
       <div class="position-relative">
         <?php 
-        if (isset($_SESSION) && isset($_SESSION['id'])) {
-          $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-          if ($userInfos['role'] === "admin") {
+        if (isset($userInfos) && !empty($userInfos)) {
+          if ($userInfos->getRole() === "admin") {
             echo '<a href="/admin" class="mx-2"><span class="bi-pencil-fill"></span></a>';
             echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
           } else {
@@ -141,11 +109,11 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
                   <tbody>
                       <?php foreach ($articles as $article): ?>
                           <tr>
-                              <td><?= $article['title'] ?></td>
-                              <td><?= $article['last_modified'] ?></td>
+                              <td><?= $article->getTitle() ?></td>
+                              <td><?= $article->getLastModified() ?></td>
                               <td>
-                                  <a href="#" class="btn btn-warning btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#modifyArticleModal">Modifier</a>
-                                  <a href="#" class="btn btn-danger btn-sm" data-article-id="<?= $article['id'] ?>" data-toggle="modal" data-target="#deleteArticleModal">Supprimer</a>
+                                  <a href="#" class="btn btn-warning btn-sm" data-article-id="<?= $article->getId() ?>" data-toggle="modal" data-target="#modifyArticleModal">Modifier</a>
+                                  <a href="#" class="btn btn-danger btn-sm" data-article-id="<?= $article->getId() ?>" data-toggle="modal" data-target="#deleteArticleModal">Supprimer</a>
                               </td>
                           </tr>
                       <?php endforeach; ?>
@@ -167,15 +135,14 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
                       </tr>
                   </thead>
                   <tbody>
-                      <?php foreach ($comments as $comment): 
-                        $author = $articlesInstance->getAuthorById($comment['author_id']);
+                      <?php foreach ($unapprovedComments as $comment): 
                         ?>
                           <tr>
-                              <td><?= $comment['content'] ?></td>
-                              <td><?= $author['username'] ?></td>
+                              <td><?= $comment->getContent() ?></td>
+                              <td><?= $comment->getUsername() ?></td>
                               <td>
-                                  <a href="#" class="btn btn-success btn-sm" data-comment-id="<?= $comment['id'] ?>" id="approveComment">Approuver</a>
-                                  <a href="#" class="btn btn-danger btn-sm" data-comment-id="<?= $comment['id'] ?>" id="disapproveComment">Désapprouver</a>
+                                  <a href="#" class="btn btn-success btn-sm" data-comment-id="<?= $comment->getId() ?>" id="approveComment">Approuver</a>
+                                  <a href="#" class="btn btn-danger btn-sm" data-comment-id="<?= $comment->getId() ?>" id="disapproveComment">Désapprouver</a>
                               </td>
                           </tr>
                       <?php endforeach; ?>
@@ -293,16 +260,16 @@ if (isset($_SESSION) && isset($_SESSION['id'])) {
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                  foreach ($footerArticles as $articleFooter) {
-                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
+                  foreach ($articleFooter as $article) {
+                    $footerArticleDate = new DateTime($article->getLastModified());
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
                     echo '<li>
-                      <a href="/article/'.htmlspecialchars($articleFooter['slug'], ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
+                      <a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
+                          <span>'.htmlspecialchars($articleFooter->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

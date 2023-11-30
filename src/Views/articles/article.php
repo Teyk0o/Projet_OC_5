@@ -1,25 +1,3 @@
-<?php
-
-use App\Entities\Article;
-
-session_start();
-
-$articlesInstance = new Article();
-$mostCommentedArticles = $articlesInstance->getMostCommentedArticles(5);
-$lastArticles = $articlesInstance->getRecentArticles(5);
-
-$footerArticles = $articlesInstance->getRecentArticles(4);
-
-$article = $articlesInstance->getArticleBySlug(htmlspecialchars($_GET['slug'], ENT_QUOTES, 'UTF-8'));
-$articleDate = new DateTime($article['last_modified']);
-$formattedArticleDate = $articleDate->format('d M Y');
-
-$comments = $articlesInstance->getCommentsByArticleId($article['id']);
-$commentsCount = count($comments);
-
-$articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
-
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -27,7 +5,7 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?> - Théo Vilain</title>
+  <title><?= htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8') ?> - Théo Vilain</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -80,10 +58,8 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
 
       <div class="position-relative">
         <?php 
-        if (isset($_SESSION) && isset($_SESSION['id'])) {
-          $userInfos = $articlesInstance->getAuthorById($_SESSION['id']);
-
-          if ($userInfos['role'] === "admin") {
+        if (isset($userInfos) && !empty($userInfos)) {
+          if ($userInfos->getRole() === "admin") {
             echo '<a href="/admin" class="mx-2"><span class="bi-pencil-fill"></span></a>';
             echo '<a href="/auth" class="mx-2"><span class="bi-person-fill"></span></a>';
           } else {
@@ -122,21 +98,21 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
 
             <!-- ======= Single Post Content ======= -->
             <div class="single-post">
-              <div class="post-meta"><span class="mx-1"><span class="date"><?= htmlspecialchars($articleAuthor['username'], ENT_QUOTES, 'UTF-8') ?> </span>&bullet;</span> <span><?= htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8') ?></span></div>
-              <h1 class="mb-5"><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?></h1>
-              <p><?= htmlspecialchars($article['chapo'], ENT_QUOTES, 'UTF-8') ?></p>
+              <div class="post-meta"><span class="mx-1"><span class="date"><?= htmlspecialchars($article->getUsername(), ENT_QUOTES, 'UTF-8') ?> </span>&bullet;</span> <span><?= htmlspecialchars((new DateTime($article->getLastModified()))->format('d M Y'), ENT_QUOTES, 'UTF-8') ?></span></div>
+              <h1 class="mb-5"><?= htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8') ?></h1>
+              <p><?= htmlspecialchars($article->getChapo(), ENT_QUOTES, 'UTF-8') ?></p>
               <hr/>
-              <?= $article['content'] ?>
+              <?= $article->getContent() ?>
             </div><!-- End Single Post Content -->
 
             <!-- ======= Comments ======= -->
             <div class="comments">
-              <h5 class="comment-title py-4"><?= htmlspecialchars($commentsCount, ENT_QUOTES, 'UTF-8') ?> Commentaires</h5>
+              <h5 class="comment-title py-4"><?= htmlspecialchars(count($comments), ENT_QUOTES, 'UTF-8') ?> Commentaires</h5>
 
               <?php 
               foreach($comments as $comment) {
 
-                $commentDate = new DateTime($comment['comment_date']);
+                $commentDate = new DateTime($comment->getCreatedAt());
                 $formattedCommentDate = $commentDate->format('d M Y');
 
                 echo '<div class="comment d-flex mb-3">
@@ -147,10 +123,10 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
                   </div>
                   <div class="flex-shrink-1 ms-2 ms-sm-3">
                     <div class="comment-meta d-flex">
-                      <h6 class="me-2">'.htmlspecialchars($comment['user_name'], ENT_QUOTES, 'UTF-8').'</h6>
+                      <h6 class="me-2">'.htmlspecialchars($comment->getUsername(), ENT_QUOTES, 'UTF-8').'</h6>
                       <span class="text-muted">'.htmlspecialchars($formattedCommentDate, ENT_QUOTES, 'UTF-8').'</span>
                     </div>
-                    <div class="comment-body">'.htmlspecialchars($comment['comment_content'], ENT_QUOTES, 'UTF-8').'</div>
+                    <div class="comment-body">'.htmlspecialchars($comment->getContent(), ENT_QUOTES, 'UTF-8').'</div>
                   </div>
                 </div>';
               }
@@ -163,12 +139,12 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
 
               <div class="col-lg-12">
                 <h5 class="comment-title">Laisser un commentaire</h5>
-                <?php if (isset($_SESSION) && isset($_SESSION['id'])) { ?>
+                <?php if (isset($userInfos) && !empty($userInfos)) { ?>
                 <form action="" method="post">
                   <div class="row">
                     <div class="col-12 mb-3 mt-3">
                       <textarea class="form-control" id="comment-message" placeholder="Écrivez votre commentaire ici..." cols="30" rows="10"></textarea>
-                      <input type="hidden" id="post-id" value="<?= htmlspecialchars($article['id'], ENT_QUOTES, 'UTF-8') ?>">
+                      <input type="hidden" id="post-id" value="<?= htmlspecialchars($article->getId(), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-12">
                       <input type="submit" id="submit-comment-btn" class="btn btn-primary" value="Ajouter un commentaire">
@@ -205,12 +181,12 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
                 <div class="tab-pane fade show active" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
                     <?php 
                         foreach($mostCommentedArticles as $article) {
-                            $articleDate = new DateTime($article['last_modified']);
+                            $articleDate = new DateTime($article->getLastModified());
                             $formattedArticleDate = $articleDate->format('d M Y');
 
                             echo '<div class="post-entry-1 border-bottom">
                                 <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                                <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h2>
                             </div>';
                         }
                     ?>
@@ -221,12 +197,12 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
 
                   <?php 
                   foreach($lastArticles as $article) {
-                    $articleDate = new DateTime($article['last_modified']);
+                    $articleDate = new DateTime($article->getLastModified());
                     $formattedArticleDate = $articleDate->format('d M Y');
 
                     echo '<div class="post-entry-1 border-bottom">
                         <div class="post-meta"><span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article['slug'], ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8').'</a></h2>
+                        <h2 class="mb-2"><a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</a></h2>
                     </div>';
                   }
                   
@@ -269,16 +245,16 @@ $articleAuthor = $articlesInstance->getAuthorById($article['author_id']);
             <ul class="footer-links footer-blog-entry list-unstyled">
 
                 <?php 
-                  foreach ($footerArticles as $articleFooter) {
-                    $footerArticleDate = new DateTime($articleFooter['last_modified']);
+                  foreach ($articleFooter as $article) {
+                    $footerArticleDate = new DateTime($article->getLastModified());
                     $formattedfooterArticleDate = $footerArticleDate->format('d M Y');
 
                     echo '<li>
-                      <a href="/article/'.htmlspecialchars($articleFooter['slug'], ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
+                      <a href="/article/'.htmlspecialchars($article->getSlug(), ENT_QUOTES, 'UTF-8').'" class="d-flex align-items-center">
                         <img src="../assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                          <span>'.htmlspecialchars($articleFooter['title'], ENT_QUOTES, 'UTF-8').'</span>
+                          <span>'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

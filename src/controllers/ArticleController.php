@@ -3,13 +3,19 @@
 namespace App\Controllers;
 
 use App\Repository\ArticleRepository;
+use App\Repository\UserRepository;
+use App\Repository\CommentRepository;
 
 class ArticleController {
 
     private $articleRepository;
+    private $userRepository;
+    private $commentRepository;
 
     public function __construct() {
         $this->articleRepository = new ArticleRepository();
+        $this->userRepository = new UserRepository();
+        $this->commentRepository = new CommentRepository();
     }
 
     public function addArticle() {
@@ -67,12 +73,63 @@ class ArticleController {
 
     public function listArticles() {
         // Récupérez les données nécessaires depuis le modèle
+        $userInfos = $this->userRepository->getUserInfos($_SESSION);
         $articles = $this->articleRepository->getAllArticles();
         $mostCommentedArticles = $this->articleRepository->getMostCommentedArticles();
         $articleFooter = $this->articleRepository->getFooterArticle();
+        $lastArticles = $this->articleRepository->getLastArticles();
     
         // Incluez la vue
         require_once 'src/views/articles/index.php';
+    }
+
+    public function homeArticleList() {
+        // Récupérez les données nécessaires depuis le modèle
+        $userInfos = $this->userRepository->getUserInfos($_SESSION);
+        $randomArticle = $this->articleRepository->getRandomArticles(1);
+        $randomArticles = $this->articleRepository->getRandomArticles(5);
+        $nonce = $this->userRepository->getUserNonce($_SESSION);
+        $articleFooter = $this->articleRepository->getFooterArticle();
+
+        // Incluez la vue
+        require_once 'src/views/home/index.php';
+    }
+
+    public function aboutArticleList() {
+        // Récupérez les données nécessaires depuis le modèle
+        $userInfos = $this->userRepository->getUserInfos($_SESSION);
+        $articleFooter = $this->articleRepository->getFooterArticle();
+
+        // Incluez la vue
+        require_once 'src/views/home/about.php';
+    }
+
+    public function articleDetail() {
+
+        if (isset($_GET['slug'])) {
+            $articleSlug = $this->secureInput($_GET['slug']);
+            $article = $this->articleRepository->fetchArticleWithSlug($articleSlug);
+
+            $articleAuthor = $this->userRepository->getUserInfosById($article->getAuthorId());
+            $article->setUsername($articleAuthor->getUsername());
+
+            $comments = $this->commentRepository->fetchCommentsForArticle($article->getId());
+
+            foreach ($comments as $comment) {
+                $commentAuthor = $this->userRepository->getUserInfosById($comment->getAuthorId());
+                $comment->setUsername($commentAuthor->getUsername());
+            }
+
+            $mostCommentedArticles = $this->articleRepository->getMostCommentedArticles();
+            $articleFooter = $this->articleRepository->getFooterArticle();
+            $lastArticles = $this->articleRepository->getLastArticles();
+
+
+            // Incluez la vue
+            require_once 'src/views/articles/article.php';
+        } else {
+            header('Location: ?page=articleList');
+        }
     }
     
 }

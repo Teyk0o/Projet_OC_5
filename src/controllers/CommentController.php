@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Repository\CommentRepository;
+use Error;
 
 class CommentController {
 
@@ -21,13 +22,6 @@ class CommentController {
         } else {
             echo 'Une erreur est survenue, veuillez réessayer.';
         }
-    }
-
-    public function fetchCommentsForArticle($articleId) {
-        $comments = $this->commentRepository->fetchCommentsForArticle($articleId);
-        // Vous pouvez maintenant afficher ces commentaires ou les renvoyer en JSON, par exemple.
-        // Pour cet exemple, je vais les afficher en tant que JSON.
-        echo json_encode($comments);
     }
 
     public function deleteComment($commentId) {
