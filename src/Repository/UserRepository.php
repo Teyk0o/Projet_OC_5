@@ -14,16 +14,33 @@ class UserRepository {
         $userData = $stmt->fetch();
     
         if (!$userData) {
-            throw new \Exception('Invalid email or password');
+            return false;
         }
     
         return new User($userData);
     }
 
     public function register($email, $password, $username) {
+        // Vérifier si l'email existe déjà
+        $query = "SELECT * FROM users WHERE email = ?";
+        $stmt = DatabaseConnection::getPDO()->prepare($query);
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user) {
+            return false;
+        }
+
+        // Si l'email n'existe pas, insérer le nouvel utilisateur
         $query = "INSERT INTO users (email, password, username) VALUES (?, ?, ?)";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
-        $stmt->execute([$email, $password, $username]);
+        $result = $stmt->execute([$email, $password, $username]);
+
+        if (!$result) {
+            throw new \Exception('Error while registering user');
+        } else {
+            return true;
+        }
     }
 
     public function getUserInfos($session) {

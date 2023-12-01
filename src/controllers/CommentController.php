@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Repository\CommentRepository;
-use Error;
 
 class CommentController {
 
@@ -13,20 +12,54 @@ class CommentController {
         $this->commentRepository = new CommentRepository();
     }
 
-    public function postComment() {
-        if (isset($_POST['comment-message'], $_POST['post-id'])) {
-            $comment = $this->secureInput($_POST['comment-message']);
-            $postId = $this->secureInput($_POST['post-id']);
+    public function postComment($data) {
+        if (isset($data['comment-message'], $data['post-id'])) {
+            $comment = $this->secureInput($data['comment-message']);
+            $postId = $this->secureInput($data['post-id']);
+            $authorId = $this->secureInput($_SESSION['id']);
 
-            $this->commentRepository->postComment($comment, $postId);
+            $query = $this->commentRepository->postComment($comment, $postId, $authorId);
+
+            if ($query) {
+                echo json_encode(['success' => true, 'message' => 'Votre commentaire a bien été ajouté.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Une erreur est survenue, veuillez réessayer.']);
+            }
         } else {
-            echo 'Une erreur est survenue, veuillez réessayer.';
+            echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs.']);
         }
     }
 
-    public function deleteComment($commentId) {
-        $this->commentRepository->deleteComment($commentId);
-        echo 'Commentaire supprimé avec succès.';
+    public function approveComment($data) {
+        if (isset($data['option'])) {
+            $commentId = $this->secureInput($data['option']);
+
+            $query = $this->commentRepository->approveComment($commentId);
+
+            if ($query) {
+                echo json_encode(['success' => true, 'message' => 'Commentaire approuvé avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'approbation du commentaire.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs.']);
+        }
+    }
+
+    public function disapproveComment($data) {
+        if (isset($data['option'])) {
+            $commentId = $this->secureInput($data['option']);
+
+            $query = $this->commentRepository->disapproveComment($commentId);
+
+            if ($query) {
+                echo json_encode(['success' => true, 'message' => 'Commentaire désapprouvé avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la désapprobation du commentaire.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs.']);
+        }
     }
 
     private function secureInput($data) {

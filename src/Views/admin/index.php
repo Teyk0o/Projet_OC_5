@@ -269,7 +269,7 @@
                         <img src="assets/img/illu-post.jpg" alt="" class="img-fluid me-3">
                         <div>
                           <div class="post-meta d-block"> <span class="mx-1">&bullet;</span> <span>'.htmlspecialchars($formattedfooterArticleDate, ENT_QUOTES, 'UTF-8').'</span></div>
-                          <span>'.htmlspecialchars($articleFooter->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
+                          <span>'.htmlspecialchars($article->getTitle(), ENT_QUOTES, 'UTF-8').'</span>
                         </div>
                       </a>
                     </li>';

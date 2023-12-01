@@ -7,16 +7,28 @@ use App\Resources\DatabaseConnection;
 
 class ArticleRepository {
 
-    public function addArticle($title, $chapo, $content) {
-        $query = "INSERT INTO posts (title, chapo, content) VALUES (?, ?, ?)";
+    public function addArticle($title, $chapo, $content, $slug, $authorId) {
+        $query = "INSERT INTO posts (title, chapo, content, slug, author_id) VALUES (?, ?, ?, ?, ?)";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
-        $stmt->execute([$title, $chapo, $content]);
+        $result = $stmt->execute([$title, $chapo, $content, $slug, $authorId]);
+
+        if (!$result) {
+            throw new \Exception("Error while creating article");
+        }
+
+        return true;
     }
 
     public function modifyArticle(Article $article) {
         $query = "UPDATE posts SET title = ?, chapo = ?, content = ? WHERE id = ?";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
-        $stmt->execute([$article->getTitle(), $article->getChapo(), $article->getContent(), $article->getId()]);
+        $result = $stmt->execute([$article->getTitle(), $article->getChapo(), $article->getContent(), $article->getId()]);
+
+        if (!$result) {
+            throw new \Exception("Error while modifying article");
+        }
+
+        return true;
     }
 
     public function fetchArticle($articleId): Article {
@@ -48,7 +60,13 @@ class ArticleRepository {
     public function deleteArticle($articleId) {
         $query = "DELETE FROM posts WHERE id = ?";
         $stmt = DatabaseConnection::getPDO()->prepare($query);
-        $stmt->execute([$articleId]);
+        $result = $stmt->execute([$articleId]);
+
+        if (!$result) {
+            throw new \Exception("Error while deleting article");
+        }
+
+        return true;
     }
 
     public function getAllArticles(): array {
@@ -114,5 +132,14 @@ class ArticleRepository {
         }
 
         return $output;
+    }
+
+    public function generateSlug($title) {
+        $slug = strtolower($title);
+        $slug = str_replace(' ', '-', $slug);
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+
+        return $slug;
     }
 }

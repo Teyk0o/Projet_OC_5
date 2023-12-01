@@ -1,7 +1,12 @@
 # Activer la réécriture d'URL
 RewriteEngine On
 
-# Si le fichier/dossier n'existe pas, rediriger vers index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L]
+
+# Règles spécifiques
+RewriteRule ^a-propos$ /?page=about [L]
+RewriteRule ^articles$ /?page=articleList [L]
+RewriteRule ^article/([^/]*)$ /?page=article&slug=$1 [L]
+RewriteRule ^admin$ /?page=admin [L]
+RewriteRule ^auth$ /?page=auth [L]

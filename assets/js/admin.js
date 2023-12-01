@@ -1,4 +1,8 @@
+console.log('admin.js chargé 1');
+
 document.addEventListener("DOMContentLoaded", function() {
+    console.log('admin.js chargé');
+
     const addArticleForm = document.querySelector("#addArticleForm");
     const modifyArticleForm = document.querySelector("#modifyArticleForm");
     const modifyButtons = document.querySelectorAll('.btn-warning[data-article-id]'); // Sélectionne tous les boutons de modification d'article
@@ -11,12 +15,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     addArticleForm.addEventListener("submit", function(event) {
         event.preventDefault();
-        sendArticleData(this, "assets/forms/article_handler.php", "addArticle");
+        sendArticleData(this, "addArticle");
     });
 
     modifyArticleForm.addEventListener("submit", function(event) {
         event.preventDefault();
-        sendArticleData(this, "assets/forms/article_handler.php", "modifyArticle");
+        sendArticleData(this, "modifyArticle");
     });
 
     modifyButtons.forEach(button => {
@@ -34,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
         if (articleIdToDelete) {
-            fetch('assets/forms/article_handler.php', {
+            fetch('?action=deleteArticle', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -59,16 +63,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     approvedCommentBtn.addEventListener('click', function() {
         const commentId = this.getAttribute('data-comment-id');
-        sendArticleData(null, "assets/forms/article_handler.php", "approved_comment", commentId);
+        sendArticleData(null, "approveComment", commentId);
     });
 
     disapprovedCommentBtn.addEventListener('click', function() {
         const commentId = this.getAttribute('data-comment-id');
-        sendArticleData(null, "assets/forms/article_handler.php", "disapproved_comment", commentId);
+        sendArticleData(null, "disapproveComment", commentId);
     });
 });
 
-function sendArticleData(form, url, type, option=null) {
+function sendArticleData(form, type, option=null) {
     let formData;
 
     if (form) {
@@ -82,6 +86,8 @@ function sendArticleData(form, url, type, option=null) {
     if (option) {
         formData.append("option", option);
     }
+
+    const url = `?action=${type}`;
 
     fetch(url, {
         method: "POST",
@@ -103,7 +109,7 @@ function sendArticleData(form, url, type, option=null) {
 }
 
 function fetchArticleData(articleId) {
-    fetch('assets/forms/article_handler.php', {
+    fetch('?action=fetchArticle', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -113,6 +119,9 @@ function fetchArticleData(articleId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+
+            console.log(data.article);
+
             // Remplir le formulaire avec les données de l'article
             document.getElementById('modify-article-id').value = data.article.id;
             document.getElementById('modify-title').value = data.article.title;

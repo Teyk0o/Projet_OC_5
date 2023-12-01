@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const commentText = document.getElementById("comment-message").value;
         const postId = document.getElementById("post-id").value; // Récupérez la valeur de post-id (en supposant que c'est un champ input. Si c'est un autre élément, ajustez en conséquence)
     
-        fetch('../assets/forms/comment_handler.php', {
+        fetch('?action=comment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

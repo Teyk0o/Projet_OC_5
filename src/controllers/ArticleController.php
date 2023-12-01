@@ -18,47 +18,76 @@ class ArticleController {
         $this->commentRepository = new CommentRepository();
     }
 
-    public function addArticle() {
-        if (isset($_POST['titre'], $_POST['chapo'], $_POST['contenu'])) {
-            $title = $this->secureInput($_POST['titre']);
-            $chapo = $this->secureInput($_POST['chapo']);
-            $content = $this->secureInput($_POST['contenu']);
+    public function addArticle($data) {
+        if (isset($data['titre'], $data['chapo'], $data['contenu'])) {
+            $title = $this->secureInput($data['titre']);
+            $chapo = $this->secureInput($data['chapo']);
+            $content = $this->secureInput($data['contenu']);
+            $authorId = $this->secureInput($_SESSION['id']);
 
-            $this->articleRepository->addArticle($title, $chapo, $content);
+            $slug = $this->articleRepository->generateSlug($title);
+
+            $query = $this->articleRepository->addArticle($title, $chapo, $content, $slug, $authorId);
+
+            if ($query) {
+                echo json_encode(['success' => true, 'message' => 'Article ajouté avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de l\'article.']);
+            }
         } else {
             echo 'Veuillez remplir tous les champs.';
         }
     }
 
-    public function modifyArticle() {
+    public function modifyArticle($data) {
 
-        if (isset($_POST['title'], $_POST['chapo'], $_POST['content'], $_POST['article_id'])) {
+        if (isset($data['title'], $data['chapo'], $data['content'], $data['article_id'])) {
 
-            $article = $this->articleRepository->fetchArticle($this->secureInput($_POST['article_id']));
+            $article = $this->articleRepository->fetchArticle($this->secureInput($data['article_id']));
             
-            $article->setTitle($this->secureInput($_POST['title']));
-            $article->setChapo($this->secureInput($_POST['chapo']));
-            $article->setContent($this->secureInput($_POST['content']));
+            $article->setTitle($this->secureInput($data['title']));
+            $article->setChapo($this->secureInput($data['chapo']));
+            $article->setContent($this->secureInput($data['content']));
 
-            $this->articleRepository->modifyArticle($article);
+            $result = $this->articleRepository->modifyArticle($article);
+
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Article modifié avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la modification de l\'article.']);
+            }
+
         } else {
             echo 'Veuillez remplir tous les champs.';
         }
     }
 
-    public function fetchArticle() {
-        if (isset($_POST['article_id'])) {
-            $articleId = intval($this->secureInput($_POST['article_id']));
-            $this->articleRepository->fetchArticle($articleId);
+    public function fetchArticle($data) {
+        if (isset($data['article_id'])) {
+            $articleId = intval($this->secureInput($data['article_id']));
+            $article = $this->articleRepository->fetchArticle($articleId);
+
+            if ($article) {
+                $articleArray = $article->toArray();
+                echo json_encode(['success' => true, 'article' => $articleArray]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Article introuvable.']);
+            }
         } else {
-            echo 'ID de l\'article non spécifié.';
+            echo json_encode(['success' => false, 'message' => 'ID de l\'article manquant.']);
         }
     }
 
-    public function deleteArticle() {
-        if (isset($_POST['article_id'])) {
-            $articleId = $this->secureInput($_POST['article_id']);
-            $this->articleRepository->deleteArticle($articleId);
+    public function deleteArticle($data) {
+        if (isset($data['article_id'])) {
+            $articleId = $this->secureInput($data['article_id']);
+            $query = $this->articleRepository->deleteArticle($articleId);
+
+            if ($query) {
+                echo json_encode(['success' => true, 'message' => 'Article supprimé avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression de l\'article.']);
+            }
         } else {
             echo 'ID de l\'article manquant.';
         }
@@ -123,7 +152,7 @@ class ArticleController {
             $mostCommentedArticles = $this->articleRepository->getMostCommentedArticles();
             $articleFooter = $this->articleRepository->getFooterArticle();
             $lastArticles = $this->articleRepository->getLastArticles();
-
+            $userInfos = $this->userRepository->getUserInfos($_SESSION);
 
             // Incluez la vue
             require_once 'src/views/articles/article.php';

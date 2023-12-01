@@ -18,31 +18,46 @@ class UserController {
         $this->commentRepository = new CommentRepository();
     }
 
-    public function login() {
-        if (isset($_POST['email'], $_POST['password'])) {
-            $email = $this->secureInput($_POST['email']);
-            $password = $this->secureInput($_POST['password']);
+    public function login($data) {
+        if (isset($data['email'], $data['password'])) {
+            $email = $this->secureInput($data['email']);
+            $password = $this->secureInput($data['password']);
 
-            $this->userRepository->login($email, $password);
+            $login = $this->userRepository->login($email, $password);
+
+            if ($login) {
+                $_SESSION['id'] = $login->getId();
+                echo json_encode(['success' => true, 'message' => 'Vous êtes connecté.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Identifiants incorrects.']);
+            }
+
         } else {
-            echo 'Informations d\'authentification manquantes.';
+            echo json_encode(['success' => false, 'message' => 'Informations de connexion manquantes.']);
         }
     }
 
-    public function register() {
-        if (isset($_POST['email'], $_POST['password'], $_POST['username'])) {
-            $email = $this->secureInput($_POST['email']);
-            $password = $this->secureInput($_POST['password']);
-            $username = $this->secureInput($_POST['username']);
+    public function register($data) {
+        if (isset($data['email'], $data['password'], $data['username'])) {
+            $email = $this->secureInput($data['email']);
+            $password = $this->secureInput($data['password']);
+            $username = $this->secureInput($data['username']);
 
-            $this->userRepository->register($email, $password, $username);
+            $register = $this->userRepository->register($email, $password, $username);
+
+            if ($register) {
+                echo json_encode(['success' => true, 'message' => 'Votre compte a bien été créé. Vous devez maintenant vous connecter.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Cet email est déjà utilisé.']);
+            }
         } else {
-            echo 'Informations d\'inscription manquantes.';
+            echo json_encode(['success' => false, 'message' => 'Informations de connexion manquantes.']);
         }
     }
 
     public function logout() {
-        // Déco
+        session_destroy();
+        echo json_encode(['success' => true, 'message' => 'Vous êtes déconnecté.']);
     }
 
     public function auth() {
@@ -55,7 +70,7 @@ class UserController {
     public function admin() {
         $userInfos = $this->userRepository->getUserInfos($_SESSION);
 
-        if ($userInfos['role'] !== 'admin') {
+        if ($userInfos->getRole() !== 'admin') {
             header('Location: /');
         }
 

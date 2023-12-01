@@ -17,73 +17,72 @@ $userController = new Controllers\UserController();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 
-switch ($page) {
-    case 'articleList':
-        $articleController->listArticles();
-        break;
-    case 'about':
-        $articleController->aboutArticleList();
-        break;
-    case 'auth':
-        $userController->auth();
-        break;
-    case 'article':
-        $articleController->articleDetail();
-        break;
-    default:
-        $articleController->homeArticleList();
-        break;
+// On empêche l'affichage d'une page si c'est un appel AJAX
+if (!isset($action) || empty($action)) {
+    switch ($page) {
+        case 'admin':
+            $userController->admin();
+            break;
+        case 'articleList':
+            $articleController->listArticles();
+            break;
+        case 'about':
+            $articleController->aboutArticleList();
+            break;
+        case 'auth':
+            $userController->auth();
+            break;
+        case 'article':
+            $articleController->articleDetail();
+            break;
+        default:
+            $articleController->homeArticleList();
+            break;
+    }
 }
 
-// Routage en fonction de l'action
+// Routage en fonction de l'action (appel AJAX)
 switch ($action) {
-    case 'addArticle':
-        $articleController->addArticle();
-        break;
-
-    case 'modifyArticle':
-        $articleController->modifyArticle();
-        break;
-
-    case 'fetchArticle':
-        $articleController->fetchArticle();
-        break;
-
-    case 'deleteArticle':
-        $articleController->deleteArticle();
-        break;
-
-    case 'postComment':
-        $commentController->postComment();
-        break;
-
-    case 'fetchCommentsForArticle':
-        if (isset($_GET['articleId'])) {
-            $commentController->fetchCommentsForArticle($_GET['articleId']);
-        } else {
-            echo 'Erreur : aucun identifiant d\'article envoyé pour les commentaires';
-        }
-        break;
-
-    case 'deleteComment':
-        if (isset($_GET['commentId'])) {
-            $commentController->deleteComment($_GET['commentId']);
-        } else {
-            echo 'Erreur : aucun identifiant de commentaire envoyé';
-        }
-        break;
 
     case 'login':
-        $userController->login();
+        $userController->login($_POST);
         break;
-
+        
     case 'register':
-        $userController->register();
-        break;
+        $userController->register($_POST);
+        break;    
 
     case 'logout':
         $userController->logout();
+        break;    
+
+    case 'comment':
+        $commentController->postComment($_POST);
+        break;    
+
+    case 'addArticle':
+        $articleController->addArticle($_POST);
+        break;   
+    
+    case 'modifyArticle':
+        $articleController->modifyArticle($_POST);
         break;
+
+    case 'fetchArticle':
+        $articleController->fetchArticle($_POST);
+        break;
+        
+    case 'deleteArticle':
+        $articleController->deleteArticle($_POST);
+        break;
+        
+    case 'approveComment':
+        $commentController->approveComment($_POST);
+        break;
+
+    case 'disapproveComment':
+        $commentController->disapproveComment($_POST);
+        break;    
 
     default:
         break;

@@ -111,7 +111,7 @@
 
               <?php 
               foreach($comments as $comment) {
-
+                
                 $commentDate = new DateTime($comment->getCreatedAt());
                 $formattedCommentDate = $commentDate->format('d M Y');
 

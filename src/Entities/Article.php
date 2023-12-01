@@ -44,4 +44,17 @@ class Article {
     public function setSlug($slug) { $this->slug = $slug; }
     public function setLastModified($last_modified) { $this->last_modified = $last_modified; }
     public function setUsername($username) { $this->username = $username; }
+
+    public function toArray() {
+        return [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'chapo' => $this->getChapo(),
+            'content' => $this->getContent(),
+            'author_id' => $this->getAuthorId(),
+            'slug' => $this->getSlug(),
+            'last_modified' => $this->getLastModified(),
+            'username' => $this->getUsername()
+        ];
+    }
 }
