@@ -5,8 +5,8 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
 # Règles spécifiques
-RewriteRule ^a-propos$ /?page=about [L]
-RewriteRule ^articles$ /?page=articleList [L]
-RewriteRule ^article/([^/]*)$ /?page=article&slug=$1 [L]
-RewriteRule ^admin$ /?page=admin [L]
-RewriteRule ^auth$ /?page=auth [L]
+RewriteRule ^a-propos$ /?page=about [QSA,L]
+RewriteRule ^articles$ /?page=articleList [QSA,L]
+RewriteRule ^article/([^/]*)$ /?page=article&slug=$1 [QSA,L]
+RewriteRule ^admin$ /?page=admin [QSA,L]
+RewriteRule ^auth$ /?page=auth [QSA,L]
